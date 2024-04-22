@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Container, Card, Image, Row } from 'react-bootstrap';
-import { faThumbsUp } from '@fortawesome/free-solid-svg-icons';
+import { faComment, faThumbsUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 
@@ -80,12 +80,18 @@ const UserPost = ({ item }) => {
                     {item.firstname}
                     <h3 className='text-center'>{item.caption}</h3>
                     <Image src={"http://localhost/sync/uploads/" + item.filename} className="w-full" />
+                    <br></br>
                     <Row>
                         {likes}
                         <FontAwesomeIcon className={isUserLiked ? 'text-blue-500' : ''}
                             icon={faThumbsUp}
                             style={{ width: '30px', height: '30px' }}
                             onClick={() => handleLikePost()}
+                        />
+
+                        <FontAwesomeIcon
+                            icon={faComment}
+                            style={{ width: '30px', height: '30px' }}
                         />
                     </Row>
 
