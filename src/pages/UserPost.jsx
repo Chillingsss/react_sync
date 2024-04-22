@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { Container, Card, Image, Row } from 'react-bootstrap';
-import { faThumbsUp } from '@fortawesome/free-solid-svg-icons';
+import { faComment, faThumbsUp } from '@fortawesome/free-solid-svg-icons';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faHome, faUser, faBell, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
+
+
+library.add(faHome, faUser, faBell, faSignOutAlt);
 
 const UserPost = ({ item }) => {
 
@@ -75,22 +80,34 @@ const UserPost = ({ item }) => {
 
     return (
         <>
-            <Card className="mb-3">
+
+
+            <Card className="text-white mb-3" style={{ backgroundColor: "#242526", borderRadius: "30px" }}>
                 <Card.Body>
-                    {item.firstname}
+                    <p style={{ fontSize: "20px" }}>{item.firstname}</p>
                     <h3 className='text-center'>{item.caption}</h3>
                     <Image src={"http://localhost/sync/uploads/" + item.filename} className="w-full" />
-                    <Row>
+                    <br></br>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
                         {likes}
-                        <FontAwesomeIcon className={isUserLiked ? 'text-blue-500' : ''}
+                        <FontAwesomeIcon
+                            className={isUserLiked ? 'text-blue-500' : ''}
                             icon={faThumbsUp}
-                            style={{ width: '30px', height: '30px' }}
+                            style={{ width: '30px', height: '30px', cursor: 'pointer', marginLeft: '10px' }}
                             onClick={() => handleLikePost()}
                         />
-                    </Row>
-
+                        <span style={{ lineHeight: '30px', marginLeft: '5px', color: isUserLiked ? 'blue' : 'inherit' }}>
+                            {isUserLiked ? 'Liked' : 'Like'}
+                        </span>
+                        <FontAwesomeIcon
+                            icon={faComment}
+                            style={{ width: '30px', height: '30px', marginLeft: '30px' }}
+                        />
+                    </div>
                 </Card.Body>
             </Card>
+
+
         </>
     )
 }
