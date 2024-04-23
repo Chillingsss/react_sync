@@ -5,16 +5,18 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faHome, faUser, faBell, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
+import CommentModal from './Comment';
 
 
 library.add(faHome, faUser, faBell, faSignOutAlt);
 
-const UserPost = ({ item }) => {
+const UserPost = ({ item, toggleCommentModal }) => {
 
     let [likes, setLikes] = useState(0);
 
 
     const [isUserLiked, setIsUserLiked] = useState(false);
+    const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
     const isUserLike = async () => {
         try {
@@ -76,7 +78,9 @@ const UserPost = ({ item }) => {
     useEffect(() => {
         setLikes(item.likes);
         isUserLike();
-    }, [])
+    }, []);
+
+
 
     return (
         <>
@@ -85,7 +89,7 @@ const UserPost = ({ item }) => {
             <Card className="text-white mb-3" style={{ backgroundColor: "#242526", borderRadius: "30px" }}>
                 <Card.Body>
                     <p style={{ fontSize: "20px" }}>{item.firstname}</p>
-                    <h3 className='text-center'>{item.caption}</h3>
+                    <p className='text-center text-[20px]'>{item.caption}</p>
                     <Image src={"http://localhost/sync/uploads/" + item.filename} className="w-full" />
                     <br></br>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -101,8 +105,11 @@ const UserPost = ({ item }) => {
                         </span>
                         <FontAwesomeIcon
                             icon={faComment}
-                            style={{ width: '30px', height: '30px', marginLeft: '30px' }}
+                            style={{ width: '30px', height: '30px', marginLeft: '30px', cursor: 'pointer' }}
+                            onClick={toggleCommentModal}
                         />
+
+
                     </div>
                 </Card.Body>
             </Card>

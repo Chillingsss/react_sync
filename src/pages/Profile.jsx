@@ -11,8 +11,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 library.add(faHome, faUser, faBell, faSignOutAlt);
 
-function Dashboard() {
-
+function Profile() {
     const navigateTo = useNavigate();
     const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
@@ -52,19 +51,37 @@ function Dashboard() {
 
     const fetchPost = async () => {
         try {
-            const url = localStorage.getItem("url") + "fetch_images.php?";
-            const res = await axios.get("http://localhost/api/fetch_images.php");
-            console.log(res.data);
+
+            const userId = sessionStorage.getItem('userId');
 
 
-            setData(res.data);
+            if (userId) {
+
+                const jsonData = {
+                    profID: userId
+                };
 
 
+                const formData = new FormData();
+                formData.append("operation", "getProfile");
+                formData.append("json", JSON.stringify(jsonData));
 
-            console.log("data ko to: ", data);
+
+                const profileRes = await axios.post(`http://localhost/api/user.php`, formData);
+
+
+                console.log(profileRes.data);
+            }
+
+
+            const url = localStorage.getItem("url") + "fetch_images.php";
+            const postRes = await axios.get(url);
+            console.log(postRes.data);
+            setData(postRes.data);
+            console.log("Post data:", data);
 
         } catch (error) {
-            console.log(error);
+            console.error("Error:", error);
         }
     }
 
@@ -74,7 +91,7 @@ function Dashboard() {
     }, [])
 
     const dashboardActive = location.pathname === '/sync/Dashboard';
-    
+    const isProfileActive = location.pathname === '/sync/Profile';
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
@@ -96,11 +113,11 @@ function Dashboard() {
 
                             <div className="hidden md:flex flex-grow justify-end items-center">
                                 <a href="/sync/Dashboard" className="mr-4 text-gray-300 hover:text-white no-underline">
-                                    <FontAwesomeIcon icon={faHome} size='xl' style={{ color: dashboardActive ? '#ffffff' : '#3766FE' }} />
+                                    <FontAwesomeIcon icon={faHome} size='xl' />
                                 </a>
 
                                 <a href="/sync/Profile" className="mr-4 text-gray-300 hover:text-white no-underline">
-                                    <FontAwesomeIcon icon={faUser} size='xl' />
+                                    <FontAwesomeIcon icon={faUser} size='xl' style={{ color: isProfileActive ? 'blue' : '#3766FE' }} />
                                 </a>
                                 <a href="#" className="mr-4 text-gray-300 hover:text-white no-underline">
                                     <FontAwesomeIcon icon={faBell} size='xl' />
@@ -213,7 +230,7 @@ function Dashboard() {
 
 
         </>
-    );
+    )
 }
 
-export default Dashboard;
+export default Profile
