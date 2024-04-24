@@ -6,16 +6,27 @@ const CreatePost = () => {
     const [showModal, setShowModal] = useState(false);
     const [postContent, setPostContent] = useState('');
     const [postImage, setPostImage] = useState(null);
-
+    // const imagePreview = document.getElementById('imagePreview');
     const handleClose = () => setShowModal(false);
     const handleShow = () => setShowModal(true);
-
+    const [imageUrl, setImageUrl] = useState(null);
     const handleContentChange = (e) => {
         setPostContent(e.target.value);
     };
 
     const handleImageChange = (e) => {
         setPostImage(e.target.files[0]);
+        // console.log(e.target.files[0]);
+        // imagePreview.src = 'C:/Users/ACER/Pictures/' + e.target.files[0].name;
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                setImageUrl(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
     };
 
     const handleSubmit = async (e) => {
@@ -74,6 +85,18 @@ const CreatePost = () => {
                             <Form.Control
                                 type="file"
                                 onChange={handleImageChange} />
+                            {imageUrl ? (
+                                <>
+                                    <h2>Preview:</h2>
+                                    <div className=''>
+                                        <div className=''>
+                                            <img src={imageUrl} alt="Preview" className='w-[500px] h-[200px] object-contain' />
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <p>No image selected</p>
+                            )}
                         </Form.Group>
                         <Button
                             variant="primary"

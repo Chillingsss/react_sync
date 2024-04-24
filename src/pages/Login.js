@@ -12,7 +12,7 @@ function Login() {
         e.preventDefault();
         e.stopPropagation();
         try {
-            const url = localStorage.getItem("url") + "user.php";
+            const url = localStorage.getItem("url") + "/user.php";
             const jsonData = {
                 loginUsername: username,
                 loginPassword: password
@@ -22,12 +22,13 @@ function Login() {
             formData.append("operation", "loginUser");
 
             const res = await axios.post(url, formData);
-            console.log("Res ni logijn", res.data.data)
+            console.log("Res ni login", res.data.data)
             if (res.data.status === 1) {
                 const { id, firstname, middlename, lastname, email, cpnumber } = res.data.data[0];
 
                 localStorage.setItem('loggedIn', 'true');
                 localStorage.setItem('id', id);
+                sessionStorage.setItem('id', id);
                 localStorage.setItem('Firstname', firstname);
                 localStorage.setItem('Middlename', middlename);
                 localStorage.setItem('Lastname', lastname);
