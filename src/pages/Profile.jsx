@@ -2,12 +2,15 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faHome, faUser, faBell, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { Container, Card, Image, Row } from 'react-bootstrap';
+import React, { useEffect, useState, useRef } from 'react';
+import { Container, Card, Image, Row, } from 'react-bootstrap';
 import UserPost from './UserPost';
 import CreatePost from './CreatePost';
 import Comment from './Comment';
 import { useNavigate, useLocation } from 'react-router-dom';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+
 
 library.add(faHome, faUser, faBell, faSignOutAlt);
 
@@ -18,8 +21,19 @@ function Profile() {
     const [data, setData] = useState([]);
     const [userFirstname, setUserFirstname] = useState('');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    // const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
-    const [selectedPost, setSelectedPost] = useState(null);
+    const dropdownRef = useRef(null);
+
+    const [showModal, setShowModal] = useState(false);
+
+    const handleShowModal = () => setShowModal(true);
+    const handleCloseModal = () => setShowModal(false);
+
+    const usersFirstname = localStorage.getItem('Firstname') || '';
+    const userMiddlename = localStorage.getItem('Middlename') || '';
+    const userLastname = localStorage.getItem('Lastname') || '';
+    const userEmail = localStorage.getItem('Email') || '';
+    const userCpNumber = localStorage.getItem('Cpnumber') || '';
+    const userUsername = localStorage.getItem('Username') || '';
 
     // const postPoints = (points) = {
 
@@ -88,7 +102,22 @@ function Profile() {
     useEffect(() => {
         fetchPost();
         setUserFirstname(localStorage.getItem('Firstname') || '');
-    }, [])
+
+        function handleClickOutside(event) {
+
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+
+                setIsDropdownOpen(false);
+            }
+        }
+
+
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [dropdownRef])
 
     const dashboardActive = location.pathname === '/sync/Dashboard';
     const isProfileActive = location.pathname === '/sync/Profile';
@@ -118,7 +147,7 @@ function Profile() {
                                     </a>
 
                                     <a href="/sync/Profile" className="mr-4 text-gray-300 hover:text-white no-underline">
-                                        <FontAwesomeIcon icon={faUser} size='xl' style={{ color: dashboardActive ? '#ffffff' : '#3766FE' }}  />
+                                        <FontAwesomeIcon icon={faUser} size='xl' style={{ color: dashboardActive ? '#ffffff' : '#3766FE' }} />
                                     </a>
                                     <a href="#" className="mr-4 text-gray-300 hover:text-white no-underline">
                                         <FontAwesomeIcon icon={faBell} size='xl' />
@@ -131,25 +160,17 @@ function Profile() {
                                                     <path fillRule="evenodd" d="M10 12.586l3.707-3.707a1 1 0 011.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 12.586z" clipRule="evenodd" />
                                                 </svg>
                                             </button>
-
                                             {isDropdownOpen && (
-                                                <>
-
-                                                    <div className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center ">
-                                                        <div className="flex items-center cursor-pointer mr-12 mt-3 text-gray-300 hover:text-blue-500" onClick={handleLogout}>
-                                                            <FontAwesomeIcon icon={faSignOutAlt} size='xl' className="ml-1 hover:text-blue-500" />
-                                                            <span className="mr-1 ml-4">Logout</span>
-                                                        </div>
-
-
-
-                                                        <div className="flex items-center cursor-pointer mt-3 mr-2 mb-3 text-gray-300 hover:text-blue-500">
-                                                            <FontAwesomeIcon icon={faUser} size='xl' className=" ml-4 hover:text-blue-500" />
-                                                            <span className="ml-5">Personal&nbsp;Details</span>
-                                                        </div>
+                                                <div ref={dropdownRef} className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center">
+                                                    <div className="flex items-center cursor-pointer mr-5 mt-3 text-gray-300 hover:text-blue-500" onClick={handleShowModal}>
+                                                        <FontAwesomeIcon icon={faUser} size='xl' className="ml-2 hover:text-blue-500" />
+                                                        <span className="mr-1 ml-4">Personal&nbsp;Details</span>
                                                     </div>
-
-                                                </>
+                                                    <div className="flex items-center cursor-pointer mt-3 mr-2 mb-3 text-gray-300 hover:text-blue-500" onClick={handleLogout}>
+                                                        <FontAwesomeIcon icon={faSignOutAlt} size='xl' className=" ml-0 hover:text-blue-500" />
+                                                        <span className="ml-3 mr-16">Logout</span>
+                                                    </div>
+                                                </div>
                                             )}
                                         </div>
 
@@ -180,29 +201,25 @@ function Profile() {
                                     </a>
                                     <div className="flex items-center mt-4">
                                         <div className="relative">
-                                            <button onClick={toggleDropdown} className="text-gray-300 hover:text-white focus:outline-none">
-                                                <span className="mr-t text-lg">{userFirstname}</span>
+                                            <button onClick={toggleDropdown} className="flex items-center text-gray-300 hover:text-white focus:outline-none">
+                                                <span className="mr-2 text-lg">{userFirstname}</span>
                                                 <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M10 12.586l3.707-3.707a1 1 0 011.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 12.586z" clipRule="evenodd" />
                                                 </svg>
                                             </button>
                                             {isDropdownOpen && (
-                                                <div className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center ">
-                                                    <div className="flex items-center cursor-pointer mr-12 mt-3 text-gray-300 hover:text-blue-500" onClick={handleLogout}>
-                                                        <FontAwesomeIcon icon={faSignOutAlt} size='xl' className="ml-1 hover:text-blue-500" />
-                                                        <span className="mr-1 ml-4">Logout</span>
+                                                <div ref={dropdownRef} className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center">
+                                                    <div className="flex items-center cursor-pointer mr-5 mt-3 text-gray-300 hover:text-blue-500" onClick={handleShowModal}>
+                                                        <FontAwesomeIcon icon={faUser} size='xl' className="ml-2 hover:text-blue-500" />
+                                                        <span className="mr-1 ml-4">Personal&nbsp;Details</span>
                                                     </div>
-
-
-
-                                                    <div className="flex items-center cursor-pointer mt-3 mr-2 mb-3 text-gray-300 hover:text-blue-500">
-                                                        <FontAwesomeIcon icon={faUser} size='xl' className=" ml-4 hover:text-blue-500" />
-                                                        <span className="ml-5">Personal&nbsp;Details</span>
+                                                    <div className="flex items-center cursor-pointer mt-3 mr-2 mb-3 text-gray-300 hover:text-blue-500" onClick={handleLogout}>
+                                                        <FontAwesomeIcon icon={faSignOutAlt} size='xl' className=" ml-0 hover:text-blue-500" />
+                                                        <span className="ml-3 mr-16">Logout</span>
                                                     </div>
                                                 </div>
                                             )}
                                         </div>
-
                                     </div>
                                 </div>
                             )}
@@ -243,17 +260,51 @@ function Profile() {
 
 
 
-                {/* <div className="d-flex justify-content-center align-items-center">
-                <div className="col-12 col-md-8">
-                    <div className="mx-auto" style={{ maxWidth: '600px', width: '100%' }}>
-                        {data.map((item, index) => (
-                            <UserPost item={item} key={index} toggleCommentModal={handleCommentModalOpen} />
-                        ))}
-                    </div>
-                </div>
-                </div> */}
+                <Modal show={showModal} onHide={handleCloseModal}>
+                    <Modal.Header closeButton className="bg-[#242526] text-white">
+                        <Modal.Title>Personal Details</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="text-white bg-[#242526]">
+                        <table className="table" style={{ backgroundColor: '#242526' }}>
+                            <tbody>
+                                <tr>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white"><strong>Firstname:</strong></td>
+                                    <td style={{ backgroundColor: '#242526', }} className="text-white">{usersFirstname}</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white"><strong>Middlename:</strong></td>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white">{userMiddlename}</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white"><strong>Lastname:</strong></td>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white">{userLastname}</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white"><strong>Email:</strong></td>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white">{userEmail}</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white"><strong>Cp Number:</strong></td>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white">{userCpNumber}</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white"><strong>Username:</strong></td>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white">{userUsername}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </Modal.Body>
 
-                {/* <Comment isOpen={isCommentModalOpen} onClose={handleCommentModalClose} /> */}
+
+
+
+                    <Modal.Footer style={{ backgroundColor: '#242526' }}>
+                        <Button variant="secondary" onClick={handleCloseModal}>
+                            Close
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
 
             </div>
 

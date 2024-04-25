@@ -1,13 +1,14 @@
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faHome, faUser, faBell, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faUser, faBell, faSignOutAlt, faSignOut } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Container, Card, Image, Row } from 'react-bootstrap';
 import UserPost from './UserPost';
 import CreatePost from './CreatePost';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -21,6 +22,9 @@ function Dashboard() {
     const [data, setData] = useState([]);
     const [userFirstname, setUserFirstname] = useState('');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    const [selectedItem, setSelectedItem] = useState(null);
+    const dropdownRef = useRef(null);
 
     const [selectedPost, setSelectedPost] = useState(null);
 
@@ -36,9 +40,33 @@ function Dashboard() {
     const userCpNumber = localStorage.getItem('Cpnumber') || '';
     const userUsername = localStorage.getItem('Username') || '';
 
-    // const postPoints = (points) = {
+    const [showUpdateDetailsModal, setShowUpdateDetailsModal] = useState(false);
+    const [updatedUserDetails, setUpdatedUserDetails] = useState({
+        firstname: usersFirstname,
+        middlename: userMiddlename,
+        lastname: userLastname,
+        email: userEmail,
+        cpnumber: userCpNumber,
+        username: userUsername
+    });
 
-    // }
+    const handleOpenUpdateDetailsModal = () => {
+        setShowUpdateDetailsModal(true);
+    };
+
+
+    const handleCloseUpdateDetailsModal = () => {
+        setShowUpdateDetailsModal(false);
+    };
+
+    const handleUpdateUserDetails = () => {
+
+    };
+
+    const handleItemClick = (item) => {
+        setSelectedItem(item);
+
+    };
 
     const handleCreatePost = () => {
         navigateTo('/createPost');
@@ -72,11 +100,23 @@ function Dashboard() {
             console.log(error);
         }
     }
-
     useEffect(() => {
         fetchPost();
         setUserFirstname(localStorage.getItem('Firstname') || '');
-    }, [])
+
+        function handleClickOutside(event) {
+
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+
+                setIsDropdownOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [dropdownRef])
+
 
     const dashboardActive = location.pathname === '/sync/Dashboard';
 
@@ -101,19 +141,19 @@ function Dashboard() {
                                 </div>
 
                                 <div className="hidden md:flex flex-grow justify-end items-center">
-                                    <a href="/sync/Dashboard" className="mr-4 text-gray-300 hover:text-white no-underline">
+                                    <a href="/sync/Dashboard" className="mr-4 text-gray-300 hover:text-blue-500 no-underline">
                                         <FontAwesomeIcon icon={faHome} size='xl' style={{ color: dashboardActive ? '#ffffff' : '#3766FE' }} />
                                     </a>
 
-                                    <a href="/sync/Profile" className="mr-4 text-gray-300 hover:text-white no-underline">
+                                    <a href="/sync/Profile" className="mr-4 text-gray-300 hover:text-blue-500 no-underline">
                                         <FontAwesomeIcon icon={faUser} size='xl' />
                                     </a>
-                                    <a href="#" className="mr-4 text-gray-300 hover:text-white no-underline">
+                                    <a href="#" className="mr-4 text-gray-300 hover:text-blue-500 no-underline">
                                         <FontAwesomeIcon icon={faBell} size='xl' />
                                     </a>
                                     <div className="flex items-center">
                                         <div className="relative">
-                                            <button onClick={toggleDropdown} className="flex items-center text-gray-300 hover:text-white focus:outline-none">
+                                            <button onClick={toggleDropdown} className="flex items-center text-gray-300 hover:text-green-500 focus:outline-none">
                                                 <span className="mr-2 text-lg">{userFirstname}</span>
                                                 <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M10 12.586l3.707-3.707a1 1 0 011.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 12.586z" clipRule="evenodd" />
@@ -121,23 +161,16 @@ function Dashboard() {
                                             </button>
 
                                             {isDropdownOpen && (
-                                                <>
-
-                                                    <div className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center ">
-                                                        <div className="flex items-center cursor-pointer mr-12 mt-3 text-gray-300 hover:text-blue-500" onClick={handleLogout}>
-                                                            <FontAwesomeIcon icon={faSignOutAlt} size='xl' className="ml-1 hover:text-blue-500" />
-                                                            <span className="mr-1 ml-4">Personal&nbsp;Details</span>
-                                                        </div>
-
-
-
-                                                        <div className="flex items-center cursor-pointer mt-3 mr-32 mb-3 text-gray-300 hover:text-blue-500" onClick={handleShowModal}>
-                                                            <FontAwesomeIcon icon={faUser} size='xl' className="pl-2 ml-4 hover:text-blue-500" />
-                                                            <span className="ml-5">Logout</span>
-                                                        </div>
+                                                <div ref={dropdownRef} className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center">
+                                                    <div className="flex items-center cursor-pointer mr-5 mt-3 text-gray-300 hover:text-blue-500" onClick={handleShowModal}>
+                                                        <FontAwesomeIcon icon={faUser} size='xl' className="ml-2 hover:text-blue-500" />
+                                                        <span className="mr-1 ml-4">Personal&nbsp;Details</span>
                                                     </div>
-
-                                                </>
+                                                    <div className="flex items-center cursor-pointer mt-3 mr-2 mb-3 text-gray-300 hover:text-red-500" onClick={handleLogout}>
+                                                        <FontAwesomeIcon icon={faSignOutAlt} size='xl' className=" ml-0 hover:text-red-500" />
+                                                        <span className="ml-3 mr-16">Logout</span>
+                                                    </div>
+                                                </div>
                                             )}
                                         </div>
 
@@ -166,23 +199,22 @@ function Dashboard() {
                                     <a href="#" className="mt-4 text-gray-300 hover:text-white no-underline">
                                         <FontAwesomeIcon icon={faBell} size='xl' />
                                     </a>
+
+
                                     <div className="flex items-center mt-4">
                                         <div className="relative">
-                                            <button onClick={toggleDropdown} className="text-gray-300 hover:text-white focus:outline-none">
-                                                <span className="mr-t text-lg">{userFirstname}</span>
+                                            <button onClick={toggleDropdown} className="flex items-center text-gray-300 hover:text-white focus:outline-none">
+                                                <span className="mr-2 text-lg">{userFirstname}</span>
                                                 <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M10 12.586l3.707-3.707a1 1 0 011.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 12.586z" clipRule="evenodd" />
                                                 </svg>
                                             </button>
                                             {isDropdownOpen && (
-                                                <div className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center ">
+                                                <div ref={dropdownRef} className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center">
                                                     <div className="flex items-center cursor-pointer mr-12 mt-3 text-gray-300 hover:text-blue-500" onClick={handleLogout}>
                                                         <FontAwesomeIcon icon={faSignOutAlt} size='xl' className="ml-1 hover:text-blue-500" />
                                                         <span className="mr-1 ml-4">Logout</span>
                                                     </div>
-
-
-
                                                     <div className="flex items-center cursor-pointer mt-3 mr-2 mb-3 text-gray-300 hover:text-blue-500" onClick={handleShowModal}>
                                                         <FontAwesomeIcon icon={faUser} size='xl' className=" ml-4 hover:text-blue-500" />
                                                         <span className="ml-5">Personal&nbsp;Details</span>
@@ -190,7 +222,6 @@ function Dashboard() {
                                                 </div>
                                             )}
                                         </div>
-
                                     </div>
                                 </div>
                             )}
@@ -262,11 +293,16 @@ function Dashboard() {
 
 
                     <Modal.Footer style={{ backgroundColor: '#242526' }}>
+                        <Button variant="secondary" onClick={handleOpenUpdateDetailsModal}>
+                            Update
+                        </Button>
                         <Button variant="secondary" onClick={handleCloseModal}>
                             Close
                         </Button>
                     </Modal.Footer>
                 </Modal>
+
+
 
 
             </div >
