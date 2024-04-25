@@ -118,26 +118,38 @@ function Profile() {
                                     </a>
 
                                     <a href="/sync/Profile" className="mr-4 text-gray-300 hover:text-white no-underline">
-                                        <FontAwesomeIcon icon={faUser} size='xl' style={{ color: isProfileActive ? 'blue' : '#3766FE' }} />
+                                        <FontAwesomeIcon icon={faUser} size='xl' style={{ color: dashboardActive ? '#ffffff' : '#3766FE' }}  />
                                     </a>
                                     <a href="#" className="mr-4 text-gray-300 hover:text-white no-underline">
                                         <FontAwesomeIcon icon={faBell} size='xl' />
                                     </a>
                                     <div className="flex items-center">
                                         <div className="relative">
-                                            <button onClick={toggleDropdown} className="text-gray-300 hover:text-white focus:outline-none">
+                                            <button onClick={toggleDropdown} className="flex items-center text-gray-300 hover:text-white focus:outline-none">
                                                 <span className="mr-2 text-lg">{userFirstname}</span>
                                                 <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M10 12.586l3.707-3.707a1 1 0 011.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 12.586z" clipRule="evenodd" />
                                                 </svg>
                                             </button>
+
                                             {isDropdownOpen && (
-                                                <div className="absolute top-15 bg-slate-800 shadow-md rounded-md p-2 flex items-center">
-                                                    <div className="flex items-center cursor-pointer" onClick={handleLogout}>
-                                                        <FontAwesomeIcon icon={faSignOutAlt} size='xl' className="text-gray-300 ml-4  " />
-                                                        <span className="text-gray-300 mr-4">Logout</span>
+                                                <>
+
+                                                    <div className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center ">
+                                                        <div className="flex items-center cursor-pointer mr-12 mt-3 text-gray-300 hover:text-blue-500" onClick={handleLogout}>
+                                                            <FontAwesomeIcon icon={faSignOutAlt} size='xl' className="ml-1 hover:text-blue-500" />
+                                                            <span className="mr-1 ml-4">Logout</span>
+                                                        </div>
+
+
+
+                                                        <div className="flex items-center cursor-pointer mt-3 mr-2 mb-3 text-gray-300 hover:text-blue-500">
+                                                            <FontAwesomeIcon icon={faUser} size='xl' className=" ml-4 hover:text-blue-500" />
+                                                            <span className="ml-5">Personal&nbsp;Details</span>
+                                                        </div>
                                                     </div>
-                                                </div>
+
+                                                </>
                                             )}
                                         </div>
 
@@ -175,10 +187,17 @@ function Profile() {
                                                 </svg>
                                             </button>
                                             {isDropdownOpen && (
-                                                <div className="absolute top-15 bg-slate-800 shadow-md rounded-md p-2 flex items-center">
-                                                    <div className="flex items-center cursor-pointer" onClick={handleLogout}>
-                                                        <FontAwesomeIcon icon={faSignOutAlt} size='xl' className="text-gray-300 ml-4  " />
-                                                        <span className="text-gray-300 mr-4">Logout</span>
+                                                <div className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center ">
+                                                    <div className="flex items-center cursor-pointer mr-12 mt-3 text-gray-300 hover:text-blue-500" onClick={handleLogout}>
+                                                        <FontAwesomeIcon icon={faSignOutAlt} size='xl' className="ml-1 hover:text-blue-500" />
+                                                        <span className="mr-1 ml-4">Logout</span>
+                                                    </div>
+
+
+
+                                                    <div className="flex items-center cursor-pointer mt-3 mr-2 mb-3 text-gray-300 hover:text-blue-500">
+                                                        <FontAwesomeIcon icon={faUser} size='xl' className=" ml-4 hover:text-blue-500" />
+                                                        <span className="ml-5">Personal&nbsp;Details</span>
                                                     </div>
                                                 </div>
                                             )}

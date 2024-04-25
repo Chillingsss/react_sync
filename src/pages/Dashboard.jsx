@@ -6,6 +6,8 @@ import React, { useEffect, useState } from 'react';
 import { Container, Card, Image, Row } from 'react-bootstrap';
 import UserPost from './UserPost';
 import CreatePost from './CreatePost';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -21,6 +23,18 @@ function Dashboard() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     const [selectedPost, setSelectedPost] = useState(null);
+
+    const [showModal, setShowModal] = useState(false);
+
+    const handleShowModal = () => setShowModal(true);
+    const handleCloseModal = () => setShowModal(false);
+
+    const usersFirstname = localStorage.getItem('Firstname') || '';
+    const userMiddlename = localStorage.getItem('Middlename') || '';
+    const userLastname = localStorage.getItem('Lastname') || '';
+    const userEmail = localStorage.getItem('Email') || '';
+    const userCpNumber = localStorage.getItem('Cpnumber') || '';
+    const userUsername = localStorage.getItem('Username') || '';
 
     // const postPoints = (points) = {
 
@@ -99,19 +113,31 @@ function Dashboard() {
                                     </a>
                                     <div className="flex items-center">
                                         <div className="relative">
-                                            <button onClick={toggleDropdown} className="text-gray-300 hover:text-white focus:outline-none">
+                                            <button onClick={toggleDropdown} className="flex items-center text-gray-300 hover:text-white focus:outline-none">
                                                 <span className="mr-2 text-lg">{userFirstname}</span>
                                                 <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M10 12.586l3.707-3.707a1 1 0 011.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 12.586z" clipRule="evenodd" />
                                                 </svg>
                                             </button>
+
                                             {isDropdownOpen && (
-                                                <div className="absolute top-15 bg-slate-800 shadow-md rounded-md p-2 flex items-center">
-                                                    <div className="flex items-center cursor-pointer" onClick={handleLogout}>
-                                                        <FontAwesomeIcon icon={faSignOutAlt} size='xl' className="text-gray-300 ml-4  " />
-                                                        <span className="text-gray-300 mr-4">Logout</span>
+                                                <>
+
+                                                    <div className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center ">
+                                                        <div className="flex items-center cursor-pointer mr-12 mt-3 text-gray-300 hover:text-blue-500" onClick={handleLogout}>
+                                                            <FontAwesomeIcon icon={faSignOutAlt} size='xl' className="ml-1 hover:text-blue-500" />
+                                                            <span className="mr-1 ml-4">Personal&nbsp;Details</span>
+                                                        </div>
+
+
+
+                                                        <div className="flex items-center cursor-pointer mt-3 mr-32 mb-3 text-gray-300 hover:text-blue-500" onClick={handleShowModal}>
+                                                            <FontAwesomeIcon icon={faUser} size='xl' className="pl-2 ml-4 hover:text-blue-500" />
+                                                            <span className="ml-5">Logout</span>
+                                                        </div>
                                                     </div>
-                                                </div>
+
+                                                </>
                                             )}
                                         </div>
 
@@ -149,10 +175,17 @@ function Dashboard() {
                                                 </svg>
                                             </button>
                                             {isDropdownOpen && (
-                                                <div className="absolute top-15 bg-slate-800 shadow-md rounded-md p-2 flex items-center">
-                                                    <div className="flex items-center cursor-pointer" onClick={handleLogout}>
-                                                        <FontAwesomeIcon icon={faSignOutAlt} size='xl' className="text-gray-300 ml-4  " />
-                                                        <span className="text-gray-300 mr-4">Logout</span>
+                                                <div className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center ">
+                                                    <div className="flex items-center cursor-pointer mr-12 mt-3 text-gray-300 hover:text-blue-500" onClick={handleLogout}>
+                                                        <FontAwesomeIcon icon={faSignOutAlt} size='xl' className="ml-1 hover:text-blue-500" />
+                                                        <span className="mr-1 ml-4">Logout</span>
+                                                    </div>
+
+
+
+                                                    <div className="flex items-center cursor-pointer mt-3 mr-2 mb-3 text-gray-300 hover:text-blue-500" onClick={handleShowModal}>
+                                                        <FontAwesomeIcon icon={faUser} size='xl' className=" ml-4 hover:text-blue-500" />
+                                                        <span className="ml-5">Personal&nbsp;Details</span>
                                                     </div>
                                                 </div>
                                             )}
@@ -190,9 +223,53 @@ function Dashboard() {
                 </div>
 
 
+                <Modal show={showModal} onHide={handleCloseModal}>
+                    <Modal.Header closeButton className="bg-[#242526] text-white">
+                        <Modal.Title>Personal Details</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="text-white bg-[#242526]">
+                        <table className="table" style={{ backgroundColor: '#242526' }}>
+                            <tbody>
+                                <tr>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white"><strong>Firstname:</strong></td>
+                                    <td style={{ backgroundColor: '#242526', }} className="text-white">{usersFirstname}</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white"><strong>Middlename:</strong></td>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white">{userMiddlename}</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white"><strong>Lastname:</strong></td>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white">{userLastname}</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white"><strong>Email:</strong></td>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white">{userEmail}</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white"><strong>Cp Number:</strong></td>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white">{userCpNumber}</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white"><strong>Username:</strong></td>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white">{userUsername}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </Modal.Body>
 
 
-            </div>
+
+
+                    <Modal.Footer style={{ backgroundColor: '#242526' }}>
+                        <Button variant="secondary" onClick={handleCloseModal}>
+                            Close
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
+
+            </div >
 
         </>
     );

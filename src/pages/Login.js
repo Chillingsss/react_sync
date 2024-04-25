@@ -12,7 +12,7 @@ function Login() {
         e.preventDefault();
         e.stopPropagation();
         try {
-            const url = localStorage.getItem("url") + "/user.php";
+            const url = localStorage.getItem("url") + "user.php";
             const jsonData = {
                 loginUsername: username,
                 loginPassword: password

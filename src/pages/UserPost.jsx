@@ -10,13 +10,13 @@ import axios from 'axios';
 
 library.add(faHome, faUser, faBell, faSignOutAlt);
 
-const UserPost = ({ item, toggleCommentModal }) => {
+const UserPost = ({ item }) => {
 
     let [likes, setLikes] = useState(0);
 
 
     const [isUserLiked, setIsUserLiked] = useState(false);
-    const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+    // const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
     const isUserLike = async () => {
         try {
@@ -88,8 +88,8 @@ const UserPost = ({ item, toggleCommentModal }) => {
 
             <Card className="text-white mb-3" style={{ backgroundColor: "#242526", borderRadius: "30px" }}>
                 <Card.Body>
-                    <p style={{ fontSize: "20px" }}>{item.firstname}</p>
-                    <p className='text-start text-[18px]'>{item.caption}</p>
+                    <p style={{ fontSize: "18px" }}>{item.firstname}</p>
+                    <p className='text-start text-[16px]'>{item.caption}</p>
                     <Image src={"http://localhost/sync/uploads/" + item.filename} className="w-full" />
                     <br></br>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
