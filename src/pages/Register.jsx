@@ -21,7 +21,7 @@ function Register() {
         e.stopPropagation();
 
         try {
-            const url = localStorage.getItem("url") + "user.php";
+            const url = localStorage.getItem("url") + "/user.php";
             const jsonData = {
                 firstname: firstname,
                 middlename: middlename,
@@ -50,6 +50,7 @@ function Register() {
 
         } catch (error) {
 
+            toast.error("Invalid Credential");
         }
     }
 
@@ -102,7 +103,7 @@ function Register() {
                                     </label>
                                     <input value={username} onChange={e => setUsername(e.target.value)} className="appearance-none block w-full bg-gray-200 text-black border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-username" type="text" placeholder="Username" />
                                 </div>
-                                <div className="mb-6"> {/* Added responsive class */}
+                                <div className="mb-6">
                                     <label className="block uppercase tracking-wide text-black text-xs font-bold mb-2" htmlFor="grid-password">
                                         Password
                                     </label>

@@ -39,6 +39,8 @@ function Dashboard() {
     const userEmail = localStorage.getItem('Email') || '';
     const userCpNumber = localStorage.getItem('Cpnumber') || '';
     const userUsername = localStorage.getItem('Username') || '';
+    const userPassword = localStorage.getItem('Password') || '';
+
 
     const [showUpdateDetailsModal, setShowUpdateDetailsModal] = useState(false);
     const [updatedUserDetails, setUpdatedUserDetails] = useState({
@@ -47,7 +49,8 @@ function Dashboard() {
         lastname: userLastname,
         email: userEmail,
         cpnumber: userCpNumber,
-        username: userUsername
+        username: userUsername,
+        password: userPassword
     });
 
     const handleOpenUpdateDetailsModal = () => {
@@ -61,7 +64,55 @@ function Dashboard() {
 
     const handleUpdateUserDetails = () => {
 
+        const isEmptyField = Object.values(updatedUserDetails).some(value => value === '');
+        if (isEmptyField) {
+            alert('Please fill in all fields.');
+            return;
+        }
+
+        console.log("asdas");
+        const formData = new FormData();
+        formData.append("operation", "updateDetails");
+        formData.append("json", JSON.stringify({
+            "updatedFirstname": updatedUserDetails.firstname,
+            "updatedMiddlename": updatedUserDetails.middlename,
+            "updatedLastname": updatedUserDetails.lastname,
+            "updatedEmail": updatedUserDetails.email,
+            "updatedCpnumber": updatedUserDetails.cpnumber,
+            "updatedUsername": updatedUserDetails.username,
+            "updatedPassword": updatedUserDetails.password,
+            "userId": sessionStorage.getItem("id")
+        }));
+
+        axios.post('http://localhost/api/user.php', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+        })
+            .then(function (response) {
+                console.log(response.data);
+
+                localStorage.removeItem('Firstname');
+                localStorage.removeItem('Middlename');
+                localStorage.removeItem('Lastname');
+                localStorage.removeItem('Email');
+                localStorage.removeItem('Cpnumber');
+                localStorage.removeItem('Username');
+
+                localStorage.setItem('Firstname', updatedUserDetails.firstname);
+                localStorage.setItem('Middlename', updatedUserDetails.middlename);
+                localStorage.setItem('Lastname', updatedUserDetails.lastname);
+                localStorage.setItem('Email', updatedUserDetails.email);
+                localStorage.setItem('Cpnumber', updatedUserDetails.cpnumber);
+                localStorage.setItem('Username', updatedUserDetails.username);
+
+                window.location.reload();
+            })
+            .catch(function (error) {
+                console.error('Error updating details:', error);
+            });
     };
+
 
     const handleItemClick = (item) => {
         setSelectedItem(item);
@@ -201,27 +252,29 @@ function Dashboard() {
                                     </a>
 
 
-                                    <div className="flex items-center mt-4">
+                                    <div className="flex items-center">
                                         <div className="relative">
-                                            <button onClick={toggleDropdown} className="flex items-center text-gray-300 hover:text-white focus:outline-none">
+                                            <button onClick={toggleDropdown} className="flex items-center text-gray-300 hover:text-green-500 focus:outline-none">
                                                 <span className="mr-2 text-lg">{userFirstname}</span>
                                                 <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M10 12.586l3.707-3.707a1 1 0 011.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 12.586z" clipRule="evenodd" />
                                                 </svg>
                                             </button>
+
                                             {isDropdownOpen && (
                                                 <div ref={dropdownRef} className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center">
-                                                    <div className="flex items-center cursor-pointer mr-12 mt-3 text-gray-300 hover:text-blue-500" onClick={handleLogout}>
-                                                        <FontAwesomeIcon icon={faSignOutAlt} size='xl' className="ml-1 hover:text-blue-500" />
-                                                        <span className="mr-1 ml-4">Logout</span>
+                                                    <div className="flex items-center cursor-pointer mr-5 mt-3 text-gray-300 hover:text-blue-500" onClick={handleShowModal}>
+                                                        <FontAwesomeIcon icon={faUser} size='xl' className="ml-2 hover:text-blue-500" />
+                                                        <span className="mr-1 ml-4">Personal&nbsp;Details</span>
                                                     </div>
-                                                    <div className="flex items-center cursor-pointer mt-3 mr-2 mb-3 text-gray-300 hover:text-blue-500" onClick={handleShowModal}>
-                                                        <FontAwesomeIcon icon={faUser} size='xl' className=" ml-4 hover:text-blue-500" />
-                                                        <span className="ml-5">Personal&nbsp;Details</span>
+                                                    <div className="flex items-center cursor-pointer mt-3 mr-2 mb-3 text-gray-300 hover:text-red-500" onClick={handleLogout}>
+                                                        <FontAwesomeIcon icon={faSignOutAlt} size='xl' className=" ml-0 hover:text-red-500" />
+                                                        <span className="ml-3 mr-16">Logout</span>
                                                     </div>
                                                 </div>
                                             )}
                                         </div>
+
                                     </div>
                                 </div>
                             )}
@@ -293,7 +346,8 @@ function Dashboard() {
 
 
                     <Modal.Footer style={{ backgroundColor: '#242526' }}>
-                        <Button variant="secondary" onClick={handleOpenUpdateDetailsModal}>
+                        <Button variant="success"
+                            onClick={handleOpenUpdateDetailsModal}>
                             Update
                         </Button>
                         <Button variant="secondary" onClick={handleCloseModal}>
@@ -302,6 +356,55 @@ function Dashboard() {
                     </Modal.Footer>
                 </Modal>
 
+
+
+
+                <Modal show={showUpdateDetailsModal} onHide={handleCloseUpdateDetailsModal}>
+                    <Modal.Header closeButton className="bg-[#242526] text-white">
+                        <Modal.Title>Update Personal Details</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="text-white bg-[#242526]">
+                        <form>
+                            <div className="mb-3">
+                                <label htmlFor="firstname" className="form-label">First Name</label>
+                                <input type="text" className="form-control" id="updatedFirstname" value={updatedUserDetails.firstname} onChange={(e) => setUpdatedUserDetails({ ...updatedUserDetails, firstname: e.target.value })} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="middlename" className="form-label">Middle Name</label>
+                                <input type="text" className="form-control" id="updatedMiddlename" value={updatedUserDetails.middlename} onChange={(e) => setUpdatedUserDetails({ ...updatedUserDetails, middlename: e.target.value })} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="lastname" className="form-label">Last Name</label>
+                                <input type="text" className="form-control" id="updatedLastname" value={updatedUserDetails.lastname} onChange={(e) => setUpdatedUserDetails({ ...updatedUserDetails, lastname: e.target.value })} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="email" className="form-label">Email</label>
+                                <input type="email" className="form-control" id="updatedEmail" value={updatedUserDetails.email} onChange={(e) => setUpdatedUserDetails({ ...updatedUserDetails, email: e.target.value })} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="cpnumber" className="form-label">Contact Number</label>
+                                <input type="text" className="form-control" id="updatedCpnumber" value={updatedUserDetails.cpnumber} onChange={(e) => setUpdatedUserDetails({ ...updatedUserDetails, cpnumber: e.target.value })} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="username" className="form-label">Username</label>
+                                <input type="text" className="form-control" id="updatedUsername" value={updatedUserDetails.username} onChange={(e) => setUpdatedUserDetails({ ...updatedUserDetails, username: e.target.value })} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="password" className="form-label">Password</label>
+                                <input type="text" className="form-control" id="updatedPassword" required value={updatedUserDetails.password} onChange={(e) => setUpdatedUserDetails({ ...updatedUserDetails, password: e.target.value })} />
+                            </div>
+                        </form>
+                    </Modal.Body>
+
+                    <Modal.Footer style={{ backgroundColor: '#242526' }}>
+                        <Button variant='success' onClick={handleUpdateUserDetails}>
+                            Save
+                        </Button>
+                        <Button variant="secondary" onClick={handleCloseUpdateDetailsModal}>
+                            Close
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
 
 
 

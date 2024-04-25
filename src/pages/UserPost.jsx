@@ -277,6 +277,33 @@ const UserPost = ({ item, currentUser }) => {
         setIsDropdownOpen(!isDropdownOpen);
     };
 
+    const formatDateTime = (dateTimeString) => {
+        console.log("dateTimeString:", dateTimeString); // Log the value of dateTimeString
+        if (dateTimeString) {
+            const dateTimeParts = dateTimeString.split(/[- :]/);
+            const year = dateTimeParts[0];
+            const month = dateTimeParts[1] - 1;
+            const day = dateTimeParts[2];
+            const hour = dateTimeParts[3];
+            const minute = dateTimeParts[4];
+            const second = dateTimeParts[5];
+
+            const dateTime = new Date(year, month, day, hour, minute, second);
+
+            if (!isNaN(dateTime.getTime())) {
+                return `${dateTime.toLocaleDateString()} ${dateTime.toLocaleTimeString()}`;
+            }
+        }
+        return "Invalid Date";
+    };
+
+
+
+
+
+
+
+
     return (
         <>
 
@@ -302,7 +329,7 @@ const UserPost = ({ item, currentUser }) => {
                                     </button>
 
                                     {isDropdownOpen && (
-                                        <div ref={dropdownRef} className="absolute mt-2 top-5 right-0 bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center">
+                                        <div ref={dropdownRef} className="absolute mt-2 top-3 right-0 bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center p-3">
                                             <div className="flex items-center">
 
                                                 <FontAwesomeIcon
@@ -362,38 +389,52 @@ const UserPost = ({ item, currentUser }) => {
 
 
             <Modal show={showCommentModal} onHide={handleCloseCommentModal}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Comments</Modal.Title>
+                <Modal.Header closeButton className="bg-[#242526] text-white">
+                    <Modal.Title><Modal.Title>Comments</Modal.Title></Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    {comments.length > 0 && comments.map((comment, index) => (
-                        <div key={index}>
-                            <p>{comment.firstname}</p>
-                            <p>{comment.comment_message}</p>
-                        </div>
+                <Modal.Body className="bg-[#242526] text-white">
+                    <div className="mb-4">
+                        <p style={{ fontSize: "18px" }}>{item.firstname}</p>
+                        <p style={{ fontSize: "16px" }}>{item.caption}</p>
+                        <img src={"http://localhost/sync/uploads/" + item.filename} className="rounded-lg" style={{ maxWidth: '100%', maxHeight: '400px' }} />
+                    </div>
 
-                    ))}
-                    <Form onSubmit={handleSubmitComment}>
-                        <Form.Group controlId="commentText">
-                            <Form.Label>Add a comment:</Form.Label>
-                            <Form.Control
+                    {comments.length > 0 && comments.map((comment, index) => {
+                        console.log('Comment date:', comment.comment_date_created);
+                        return (
+                            <div key={index} className="mb-2 ">
+                                <div className={`bg-slate-900 text-white p-2 rounded-lg ${comment.userComment ? 'bg-blue-100' : ''}`}>
+                                    <p className="font-bold">{comment.firstname}</p>
+                                    <p>{comment.comment_message}</p>
+                                    <p className="text-gray-400 text-xs">{comment.comment_date_created}</p>
+                                </div>
+                            </div>
+                        );
+                    })}
+
+                    <form onSubmit={handleSubmitComment}>
+                        <div className="mb-4 ">
+                            <label htmlFor="commentText" className="block text-sm font-medium bg-[#242526] text-white">Add a comment:</label>
+                            <input
                                 type="text"
+                                id="commentText"
+                                className="mt-1 p-2 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 border border-gray-300 rounded-md bg-[#242526] text-white"
                                 placeholder="Enter your comment"
                                 value={newComment}
                                 onChange={(e) => setNewComment(e.target.value)}
                             />
-                        </Form.Group>
-                        <Button variant="primary" type="submit">
-                            Submit
-                        </Button>
-                    </Form>
+                        </div>
+                        <div className="text-right">
+                            <button type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-4">Submit</button>
+                            <button type="button" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-slate-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onClick={handleCloseCommentModal}>
+                                Close
+                            </button>
+                        </div>
+                    </form>
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseCommentModal}>
-                        Close
-                    </Button>
-                </Modal.Footer>
             </Modal>
+
+
 
 
             <Modal show={showEditModal} onHide={handleCloseEditModal}>
