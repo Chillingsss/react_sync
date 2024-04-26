@@ -130,11 +130,12 @@ function Dashboard() {
 
     const handleLogout = () => {
         localStorage.clear();
+        sessionStorage.clear();
         window.location.href = '/sync';
     };
 
 
-    const fetchPost = async () => {
+    const fetchPost = async (postId) => {
         try {
             const url = localStorage.getItem("url") + "fetch_images.php?";
             const res = await axios.get("http://localhost/api/fetch_images.php");
@@ -143,6 +144,7 @@ function Dashboard() {
 
             setData(res.data);
 
+            localStorage.getItem(`comments_${postId}`);
 
 
             console.log("data ko to: ", data);

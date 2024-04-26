@@ -14,6 +14,7 @@ library.add(faHome, faUser, faBell, faSignOutAlt);
 const UserPost = ({ item, currentUser }) => {
 
     let [likes, setLikes] = useState(0);
+    const [commentsLength, setCommentsLength] = useState(0);
 
 
     const [isUserLiked, setIsUserLiked] = useState(false);
@@ -89,11 +90,12 @@ const UserPost = ({ item, currentUser }) => {
         }
     }
 
+
     const handleSubmitComment = async (e) => {
         e.preventDefault();
 
         if (!newComment) {
-            console.error('Comment is empty');
+            alert('Please enter a comment');
             return;
         }
 
@@ -154,7 +156,7 @@ const UserPost = ({ item, currentUser }) => {
 
 
                 setComments(commentList);
-
+                localStorage.setItem(`comments_${postId}`, JSON.stringify(commentList));
 
 
                 setShowCommentModal(true);
@@ -196,6 +198,8 @@ const UserPost = ({ item, currentUser }) => {
 
     const [updatedCaption, setEditedCaption] = useState(item.caption);
 
+
+
     const handleEdit = async (postId) => {
         try {
             const jsonData = {
@@ -212,9 +216,8 @@ const UserPost = ({ item, currentUser }) => {
             if (response.data.status === 1) {
                 console.log('Caption updated successfully:', response.data);
                 toast.success("Updated Successful");
+
                 window.location.reload();
-
-
 
             } else {
                 console.error('Error updating caption:', response.data);
@@ -247,31 +250,46 @@ const UserPost = ({ item, currentUser }) => {
         setShowCommentModal(true);
     }
 
+
+
     useEffect(() => {
         setLikes(item.likes);
         isUserLike();
 
-        if (showCommentModal) {
 
-            fetchComments();
+
+
+        const postId = item.id;
+
+        const storedComments = localStorage.getItem(`comments_${postId}`);
+        if (storedComments) {
+            setComments(JSON.parse(storedComments));
+        } else {
+            fetchComments(postId);
         }
 
         function handleClickOutside(event) {
-
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-
                 setIsDropdownOpen(false);
             }
         }
-
-
 
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
 
+
     }, [isUserLike, item.likes, showCommentModal, dropdownRef]);
+
+
+    useEffect(() => {
+
+        const commentsLength = comments.length;
+        console.log("Comments length:", commentsLength);
+        setCommentsLength(commentsLength);
+    }, [comments]);
+
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
@@ -312,8 +330,8 @@ const UserPost = ({ item, currentUser }) => {
                 <Card.Body>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <div>
-                            <p style={{ fontSize: "18px" }}>{item.firstname}</p>
-                            <p className='text-start text-[16px]'>{item.caption}</p>
+                            <p style={{ fontSize: "17.5px" }}>{item.firstname}</p>
+                            <p className='text-start text-[15.5px]'>{item.caption}</p>
                         </div>
                         <div className="relative">
                             {item.userID === localStorage.getItem('id') && (
@@ -358,26 +376,35 @@ const UserPost = ({ item, currentUser }) => {
                             )}
                         </div>
                     </div >
-                    <Image src={"http://localhost/sync/uploads/" + item.filename} className="w-full" />
+                    <Image src={"http://localhost/sync/uploads/" + item.filename} className="w-full cursor-pointer rounded-lg" onClick={() => handleShowCommentModal(item.id)} />
                     <p className="text-right text-gray-500 text-xs">{item.upload_date}</p>
 
                     <div style={{ display: 'flex', alignItems: 'center', }}>
                         {likes}
-                        <FontAwesomeIcon
-                            className={isUserLiked ? 'text-blue-500' : ''}
-                            icon={faThumbsUp}
-                            style={{ width: '30px', height: '30px', cursor: 'pointer', marginLeft: '10px' }}
-                            onClick={() => handleLikePost()}
-                        />
-                        <span style={{ lineHeight: '30px', marginLeft: '5px', color: isUserLiked ? 'blue' : 'inherit' }}>
-                            {isUserLiked ? 'Liked' : 'Like'}
-                        </span>
-                        <FontAwesomeIcon
-                            icon={faComment}
-                            style={{ width: '30px', height: '30px', marginLeft: '30px', cursor: 'pointer' }}
-                            className='hover:text-blue-500'
-                            onClick={() => handleShowCommentModal(item.id)}
-                        />
+
+                        <div className="cursor-pointer text-gray-300 hover:text-blue-500" style={{ display: 'flex', alignItems: 'center' }}>
+                            <FontAwesomeIcon
+                                className={isUserLiked ? 'text-blue-500' : ''}
+                                icon={faThumbsUp}
+                                style={{ width: '30px', height: '30px', cursor: 'pointer', marginLeft: '10px' }}
+                                onClick={() => handleLikePost()}
+                            />
+
+
+                            <span style={{ lineHeight: '30px', marginLeft: '5px', color: isUserLiked ? 'blue' : 'inherit' }} onClick={() => handleLikePost()}>
+                                {isUserLiked ? 'Liked' : 'Like'}
+                            </span>
+                        </div>
+
+
+                        <div className="cursor-pointer text-gray-300 hover:text-green-500" style={{ display: 'flex', alignItems: 'center' }}>
+                            <FontAwesomeIcon
+                                icon={faComment}
+                                style={{ width: '30px', height: '30px', marginLeft: '10px', cursor: 'pointer' }}
+                                onClick={() => handleShowCommentModal(item.id)}
+                            />
+                            <span className="ml-2" style={{ lineHeight: '30px', marginLeft: '5px', cursor: 'pointer' }} onClick={() => handleShowCommentModal(item.id)}>Comment</span>
+                        </div>
 
                     </div>
 
@@ -389,15 +416,27 @@ const UserPost = ({ item, currentUser }) => {
 
 
             <Modal show={showCommentModal} onHide={handleCloseCommentModal}>
-                <Modal.Header closeButton className="bg-[#242526] text-white">
+                {/* <Modal.Header closeButton className="bg-[#242526] text-white">
                     <Modal.Title><Modal.Title>Comments</Modal.Title></Modal.Title>
-                </Modal.Header>
+                </Modal.Header> */}
                 <Modal.Body className="bg-[#242526] text-white">
                     <div className="mb-4">
                         <p style={{ fontSize: "18px" }}>{item.firstname}</p>
                         <p style={{ fontSize: "16px" }}>{item.caption}</p>
-                        <img src={"http://localhost/sync/uploads/" + item.filename} className="rounded-lg" style={{ maxWidth: '100%', maxHeight: '400px' }} />
+
+                        <img src={"http://localhost/sync/uploads/" + item.filename} className="rounded-lg mx-auto" style={{ maxWidth: '100%', maxHeight: '400px' }} />
                     </div>
+
+                    <div className="flex justify-between text-gray-400" style={{ fontSize: "14px" }}>
+                        <p className='text-start'>
+                            <FontAwesomeIcon icon={faThumbsUp} className="mr-1" />
+                            {likes}
+                        </p>
+                        <p className='text-end'>
+                            {comments.length} <FontAwesomeIcon icon={faComment} className="mr-1" />
+                        </p>
+                    </div>
+
 
                     {comments.length > 0 && comments.map((comment, index) => {
                         console.log('Comment date:', comment.comment_date_created);
@@ -438,19 +477,26 @@ const UserPost = ({ item, currentUser }) => {
 
 
             <Modal show={showEditModal} onHide={handleCloseEditModal}>
-                <Modal.Header closeButton>
+                <Modal.Header closeButton className='bg-[#242526] text-white'>
                     <Modal.Title>Edit Caption</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body className='bg-[#242526] text-white'>
 
-                    <input
-                        type="text"
-                        value={updatedCaption}
-                        onChange={(e) => setEditedCaption(e.target.value)}
-                        placeholder="Enter updated caption"
-                    />
+                    <div className="mb-4">
+                        <p style={{ fontSize: "18px" }}>{item.firstname}</p>
+                        <input
+                            type="text"
+                            value={updatedCaption}
+                            onChange={(e) => setEditedCaption(e.target.value)}
+                            placeholder="Enter updated caption"
+                            className="mb-3 outline-none bg-[#242526]"
+                        />
+                        <img src={"http://localhost/sync/uploads/" + item.filename} className="rounded-lg mx-auto" style={{ maxWidth: '100%', maxHeight: '400px' }} />
+                    </div>
+
+
                 </Modal.Body>
-                <Modal.Footer>
+                <Modal.Footer style={{ backgroundColor: '#242526' }}>
                     <Button variant="secondary" onClick={handleCloseEditModal}>
                         Close
                     </Button>
@@ -463,6 +509,7 @@ const UserPost = ({ item, currentUser }) => {
 
         </>
     )
+
 }
 
 export default UserPost

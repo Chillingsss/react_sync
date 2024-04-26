@@ -36,7 +36,6 @@ function Login() {
                 localStorage.setItem('Cpnumber', cpnumber);
                 localStorage.setItem('Username', username);
 
-
                 navigateTo("/dashboard");
                 toast.success("Login Successful");
             } else {

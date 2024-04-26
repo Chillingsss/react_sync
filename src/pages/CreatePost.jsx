@@ -64,16 +64,19 @@ const CreatePost = () => {
                 show={showModal}
                 onHide={handleClose}>
                 <Modal.Header
-                    closeButton>
+                    closeButton
+                    className="bg-[#242526] text-white">
                     <Modal.Title>Create Post</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body className="bg-[#242526] text-white">
                     <Form
                         onSubmit={handleSubmit}>
                         <Form.Group
                             controlId="postContent">
                             <Form.Label>Post Content</Form.Label>
                             <Form.Control
+                                className='bg-[#242526'
+                                style={{ backgroundColor: '#242526', color: 'white' }}
                                 as="textarea"
                                 rows={3}
                                 value={postContent}
@@ -84,7 +87,9 @@ const CreatePost = () => {
                             <Form.Label>Upload Image</Form.Label>
                             <Form.Control
                                 type="file"
-                                onChange={handleImageChange} />
+                                onChange={handleImageChange}
+                                style={{ backgroundColor: '#242526', color: 'white' }}
+                            />
                             {imageUrl ? (
                                 <>
                                     <h2>Preview:</h2>

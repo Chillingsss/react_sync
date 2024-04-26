@@ -8,7 +8,6 @@ import Profile from './pages/Profile';
 
 
 
-
 function App() {
 
   if (localStorage.getItem("url") !== "http://localhost/api/") {
