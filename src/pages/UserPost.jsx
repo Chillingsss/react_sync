@@ -499,6 +499,7 @@ const UserPost = ({ item, currentUse, comment }) => {
                 <Card.Body>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <div>
+                            <img src={"http://localhost/api/profPic/" + item.prof_pic} className="rounded-full" alt="" style={{ width: '50px', height: '50px' }} />
                             <p style={{ fontSize: "17.5px" }}>{item.firstname}</p>
                             {isEditingCaptionId === item.id ? (
                                 <input
@@ -589,6 +590,7 @@ const UserPost = ({ item, currentUse, comment }) => {
             <Modal show={showCommentModal} onHide={handleCloseCommentModal}>
                 <Modal.Body className="bg-[#242526] text-white">
                     <div className="mb-4">
+
                         <p style={{ fontSize: "18px" }}>{item.firstname}</p>
                         <p style={{ fontSize: "16px" }}>{item.caption}</p>
                         <img src={"http://localhost/sync/uploads/" + item.filename} className="rounded-lg mx-auto" style={{ maxWidth: '100%', maxHeight: '400px' }} />

@@ -24,7 +24,7 @@ function Login() {
             const res = await axios.post(url, formData);
             console.log("Res ni login", res.data.data)
             if (res.data.status === 1) {
-                const { id, firstname, middlename, lastname, email, cpnumber } = res.data.data[0];
+                const { id, firstname, middlename, lastname, email, cpnumber, prof_pic } = res.data.data[0];
 
                 localStorage.setItem('loggedIn', 'true');
                 localStorage.setItem('id', id);
@@ -35,6 +35,7 @@ function Login() {
                 localStorage.setItem('Email', email);
                 localStorage.setItem('Cpnumber', cpnumber);
                 localStorage.setItem('Username', username);
+                localStorage.setItem('ProfilePic', prof_pic);
 
                 navigateTo("/dashboard");
                 toast.success("Login Successful");
