@@ -143,7 +143,7 @@ function Dashboard() {
 
 
             setData(res.data);
-
+            
             localStorage.getItem(`comments_${postId}`);
 
 
@@ -285,7 +285,7 @@ function Dashboard() {
                 </div>
 
 
-
+ 
 
 
                 <div className="container mx-auto px-6 py-18" style={{ marginBottom: "30px" }}>
@@ -303,6 +303,8 @@ function Dashboard() {
                         <div className="mx-auto" style={{ maxWidth: '600px', width: '100%' }}>
                             {data.map((item, index) => (
                                 <UserPost item={item} key={index} />
+                                // <UserPost item={item} key={index} commentCount={commentCount} />
+                                
                             ))}
                         </div>
                     </div>
