@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import { Button, Modal, Form } from 'react-bootstrap';
+import { toast } from 'sonner';
 
 const CreatePost = () => {
     const [showModal, setShowModal] = useState(false);
@@ -32,6 +33,11 @@ const CreatePost = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (!postImage && !postContent) {
+            toast.error('Image or caption is required.');
+            return;
+        }
+
         const formData = new FormData();
         formData.append('file', postImage);
         formData.append('caption', postContent);
@@ -50,6 +56,8 @@ const CreatePost = () => {
             console.error('Error:', error);
         }
     };
+
+
 
     return (
         <>

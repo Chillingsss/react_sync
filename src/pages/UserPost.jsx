@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { Container, Card, Modal, Button, Image, Row, Form } from 'react-bootstrap';
-import { faComment, faThumbsUp, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faComment, faThumbsUp, faTrash, faEdit, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faHome, faUser, faBell, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faUser, faBell, faSignOutAlt, } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -15,6 +15,9 @@ const UserPost = ({ item, currentUse, comment }) => {
 
     let [likes, setLikes] = useState(0);
     const [count_Comment, setCommentCount] = useState(0);
+
+    const userFirstname = localStorage.getItem('Firstname');
+    const userImage = localStorage.getItem('ProfilePic') || '';
 
 
     const [isUserLiked, setIsUserLiked] = useState(false);
@@ -326,6 +329,11 @@ const UserPost = ({ item, currentUse, comment }) => {
 
     const handleUpdateCaption = async (postId) => {
         try {
+            if (editedCaption === item.caption) {
+                setIsEditingCaptionId(null);
+                return;
+            }
+
             const jsonData = {
                 postId: postId,
                 updatedCaption: editedCaption
@@ -351,6 +359,8 @@ const UserPost = ({ item, currentUse, comment }) => {
             alert("Error updating caption. Please try again later.");
         }
     };
+
+
 
 
 
@@ -495,29 +505,20 @@ const UserPost = ({ item, currentUse, comment }) => {
         <>
 
 
-            <Card className="text-white mb-3" style={{ backgroundColor: "#242526", borderRadius: "30px" }}>
+            <Card className="text-white mb-3" style={{ backgroundColor: "#242526", borderRadius: "20px" }}>
                 <Card.Body>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <div>
-                            <img src={"http://localhost/api/profPic/" + item.prof_pic} className="rounded-full" alt="" style={{ width: '50px', height: '50px' }} />
-                            <p style={{ fontSize: "17.5px" }}>{item.firstname}</p>
-                            {isEditingCaptionId === item.id ? (
-                                <input
-                                    type="text"
-                                    className="text-start text-[15.5px] outline-none bg-transparent text-white mb-3"
-                                    value={editedCaption}
-                                    onChange={(e) => setEditedCaption(e.target.value)}
-                                    autoFocus
-                                />
-                            ) : (
-                                <p className='text-start text-[15.5px]'>{item.caption}</p>
-                            )}
+                        <div style={{ display: 'flex' }}>
+                            <img src={"http://localhost/api/profPic/" + item.prof_pic} className="rounded-full" alt="" style={{ width: '45px', height: '45px' }} />
+                            <div style={{ marginLeft: '10px' }}>
+                                <p style={{ fontSize: "17px", marginBottom: '5px' }} >{item.firstname}</p>
+                                <p className="text-right text-gray-500 text-xs ">{item.upload_date}</p>
+                            </div>
                         </div>
-                        <div className="relative">
+                        <div className="relative" style={{ marginLeft: 'auto' }}>
                             {item.userID === localStorage.getItem('id') && (
                                 <>
-
-                                    <button onClick={toggleDropdown} className="flex items-center text-gray-300 hover:text-white focus:outline-none">
+                                    <button onClick={toggleDropdown} className="flex items-center rounded text-gray-300 hover:text-white focus:outline-none">
                                         <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                             <circle cx="10" cy="10" r="2" fill="#fff" />
                                             <circle cx="5" cy="10" r="2" fill="#fff" />
@@ -526,38 +527,58 @@ const UserPost = ({ item, currentUse, comment }) => {
                                     </button>
                                 </>
                             )}
+                        </div>
+                        <div>
                             {isDropdownOpen && (
-                                <div ref={dropdownRef} className="absolute mt-2 top-3 right-0 bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center p-3">
+                                <div ref={dropdownRef} className="absolute mt-4 top-3 right-0 bg-slate-800 shadow-md rounded-2xl flex flex-col items-center p-3">
                                     <div className="flex items-center">
                                         {isEditingCaptionId === item.id ? (
                                             <>
-                                                <button onClick={() => handleUpdateCaption(item.id)} className="mr-5 flex items-center text-gray-300 hover:text-white focus:outline-none">
+                                                <button onClick={() => handleUpdateCaption(item.id)} className="mr-5 flex items-center text-gray-300 hover:text-green-500 focus:outline-none ">
                                                     Save
                                                 </button>
-                                                <button onClick={() => handleCancelEditCaption()} className="mr-5 flex items-center text-gray-300 hover:text-white focus:outline-none">
+                                                <button onClick={() => handleCancelEditCaption()} className="mr-5 flex items-center text-gray-300 hover:text-red-500 focus:outline-none">
                                                     Cancel
                                                 </button>
                                             </>
                                         ) : (
-                                            <button onClick={() => handleOpenEditCaption(item.id, item.caption)} className="flex items-center text-gray-300 hover:text-white focus:outline-none">
+                                            <button onClick={() => handleOpenEditCaption(item.id, item.caption)} className="flex items-center text-gray-300 hover:text-green-500 focus:outline-none">
                                                 <FontAwesomeIcon icon={faEdit} className="mr-5" />
                                             </button>
                                         )}
                                         <FontAwesomeIcon
                                             icon={faTrash}
-                                            className="mr-1 hover:text-red-500"
+                                            className=" hover:text-red-500"
                                             style={{ width: '20px', height: '20px', cursor: 'pointer' }}
                                             onClick={() => handleDelete(item.id)}
                                         />
                                     </div>
                                 </div>
                             )}
-
                         </div>
                     </div>
-                    <Image src={"http://localhost/sync/uploads/" + item.filename} className="w-full cursor-pointer rounded-lg" onClick={() => handleShowCommentModal(item.id)} />
-                    <p className="text-right text-gray-500 text-xs">{item.upload_date}</p>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
+
+                    <div>
+                        {isEditingCaptionId === item.id ? (
+                            <input
+                                type="text"
+                                className="text-start text-[15.5px] outline-none bg-transparent text-white mb-3"
+                                value={editedCaption}
+                                onChange={(e) => setEditedCaption(e.target.value)}
+                                autoFocus
+                            />
+                        ) : (
+                            <p className='text-start text-[15.5px]'>{item.caption}</p>
+                        )}
+                    </div>
+
+                    {item.filename && (
+                        <div className="relative" style={{ height: '400px', overflow: 'hidden' }}>
+                            <Image src={"http://localhost/sync/uploads/" + item.filename} className="w-full cursor-pointer rounded-lg absolute inset-0 object-cover" onClick={() => handleShowCommentModal(item.id)} />
+                        </div>
+                    )}
+
+                    <div style={{ display: 'flex', alignItems: 'center' }} className='mt-3'>
                         {likes}
                         <div className="cursor-pointer text-gray-300 hover:text-blue-500" style={{ display: 'flex', alignItems: 'center' }}>
                             <FontAwesomeIcon
@@ -590,11 +611,21 @@ const UserPost = ({ item, currentUse, comment }) => {
             <Modal show={showCommentModal} onHide={handleCloseCommentModal}>
                 <Modal.Body className="bg-[#242526] text-white">
                     <div className="mb-4">
+                        {/* User details and item caption */}
+                        <div className="flex">
+                            <img src={"http://localhost/api/profPic/" + item.prof_pic} className="rounded-full" alt="" style={{ width: '45px', height: '45px' }} />
+                            <div style={{ marginLeft: '10px' }}>
+                                <p style={{ fontSize: "17px", marginBottom: '5px' }}>{item.firstname}</p>
+                                <p className="text-right text-gray-500 text-xs">{item.upload_date}</p>
+                            </div>
+                        </div>
+                        <p className='text-start text-[15.5px]'>{item.caption}</p>
 
-                        <p style={{ fontSize: "18px" }}>{item.firstname}</p>
-                        <p style={{ fontSize: "16px" }}>{item.caption}</p>
+                        {/* Uploaded image */}
                         <img src={"http://localhost/sync/uploads/" + item.filename} className="rounded-lg mx-auto" style={{ maxWidth: '100%', maxHeight: '400px' }} />
                     </div>
+
+                    {/* Likes and Comments */}
                     <div className="flex justify-between text-gray-400" style={{ fontSize: "14px" }}>
                         <p className='text-start'>
                             <FontAwesomeIcon icon={faThumbsUp} className="mr-1" />
@@ -604,17 +635,20 @@ const UserPost = ({ item, currentUse, comment }) => {
                             {comments.length} <FontAwesomeIcon icon={faComment} className="mr-1" />
                         </p>
                     </div>
+
+                    {/* Display comments */}
                     {comments.length > 0 && comments.map((comment, index) => (
-                        <div key={index} className="mb-2 ">
+                        <div key={index} className="mb-2">
                             <div className={`bg-slate-900 text-white p-2 rounded-lg ${comment.userComment ? 'bg-blue-100' : ''}`}>
+                                {/* Edit and delete buttons for user's comments */}
                                 <div className="relative">
                                     {comment.comment_userID === localStorage.getItem('id') && (
-                                        <>
+                                        <div className="flex items-center">
                                             <button className="flex items-center text-gray-300 hover:text-white focus:outline-none absolute top-0 right-0">
                                                 <FontAwesomeIcon
                                                     icon={faEdit}
                                                     className="mr-1 hover:text-blue-500"
-                                                    style={{ width: '20px', height: '20px', cursor: 'pointer', marginRight: '20px' }}
+                                                    style={{ width: '15px', height: '15px', cursor: 'pointer', marginRight: '20px' }}
                                                     onClick={() => {
                                                         setEditedComment(comment.comment_message);
                                                         setEditingCommentId(comment.comment_id);
@@ -623,58 +657,77 @@ const UserPost = ({ item, currentUse, comment }) => {
                                                 <FontAwesomeIcon
                                                     icon={faTrash}
                                                     className="mr-1 hover:text-red-500"
-                                                    style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                                                    style={{ width: '15px', height: '15px', cursor: 'pointer' }}
                                                     onClick={() => deleteComment(comment.comment_id)}
                                                 />
                                             </button>
-                                        </>
+                                        </div>
                                     )}
                                 </div>
+                                {/* Edit comment textarea */}
                                 {editingCommentId === comment.comment_id ? (
-                                    <>
-                                        <p className="font-bold">{comment.firstname}</p>
+                                    <div className="flex items-center">
+                                        <img src={"http://localhost/api/profPic/" + comment.prof_pic} className="rounded-full mr-2" alt="" style={{ width: '45px', height: '45px' }} />
+                                        <div>
+                                            <p className="font-bold">{comment.firstname}</p>
+                                        </div>
+
                                         <textarea
                                             value={editedComment}
                                             onChange={(e) => setEditedComment(e.target.value)}
                                             className="outline-none bg-slate-900 text-white w-full"
-
                                         />
                                         <div className="text-right mt-2">
-                                            <button type="button" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2" onClick={() => handleEditComment(comment.comment_id)}>Save</button>
-                                            <button type="button" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onClick={() => setEditingCommentId(null)}>Cancel</button>
+                                            <button type="button" className="inline-flex items-center justify-center rounded-full text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2" onClick={() => handleEditComment(comment.comment_id)}>
+                                                <FontAwesomeIcon icon={faComment} />
+                                            </button>
                                         </div>
-                                    </>
+                                    </div>
                                 ) : (
+                                    // Display comment
                                     <>
-                                        <p className="font-bold">{comment.firstname}</p>
+                                        <div className="flex">
+                                            <img src={"http://localhost/api/profPic/" + comment.prof_pic} className="rounded-full mr-2" alt="" style={{ width: '45px', height: '45px' }} />
+                                            <div>
+                                                <p style={{ fontSize: "17px", marginBottom: '5px' }}>{comment.firstname}</p>
+                                                <p className="text-right text-gray-500 text-xs">{comment.comment_date_created}</p>
+                                            </div>
+                                        </div>
                                         <p>{comment.comment_message}</p>
                                     </>
                                 )}
-                                <p className="text-gray-400 text-xs">{comment.comment_date_created}</p>
                             </div>
                         </div>
                     ))}
-                    <form onSubmit={handleSubmitComment}>
-                        <div className="mb-4 ">
-                            <label htmlFor="commentText" className="block text-sm font-medium bg-[#242526] text-white">Add a comment:</label>
+
+                    {/* Comment input */}
+                    <form onSubmit={handleSubmitComment} className="mb-4">
+                        <div className="relative flex">
+                            <img src={"http://localhost/api/profPic/" + userImage} className="rounded-full mt-2.5" alt="" style={{ width: '40px', height: '40px' }} />
                             <input
                                 type="text"
                                 id="commentText"
-                                className="mt-1 p-2 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 border border-gray-300 rounded-md bg-[#242526] text-white"
-                                placeholder="Enter your comment"
+                                className="mt-2 ml-2 p-2 pl-10 block w-full shadow-sm rounded-2xl bg-slate-900 text-white"
+                                placeholder={`Comment as ${userFirstname || 'Guest'}`}
                                 value={newComment}
                                 onChange={(e) => setNewComment(e.target.value)}
                             />
-                        </div>
-                        <div className="text-right">
-                            <button type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-4">Submit</button>
-                            <button type="button" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-slate-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onClick={handleCloseCommentModal}>
-                                Close
+                            <button type="submit" className="absolute inset-y-0 right-0 flex items-center justify-center rounded-full text-white cursor-pointer mr-2" >
+                                <FontAwesomeIcon icon={faPaperPlane} style={{ color: "gray" }} />
                             </button>
+
                         </div>
                     </form>
+
+
+                    <div className="text-right">
+                        <button type="button" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-2xl text-white bg-slate-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onClick={handleCloseCommentModal}>
+                            Close
+                        </button>
+                    </div>
                 </Modal.Body>
             </Modal>
+
 
 
 

@@ -1,5 +1,5 @@
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faHome, faUser, faBell, faSignOutAlt, faSignOut } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faUser, faBell, faSignOutAlt, faSignOut, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import React, { useEffect, useState, useRef } from 'react';
@@ -9,6 +9,7 @@ import CreatePost from './CreatePost';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
+import { Home } from 'react-feather';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -40,7 +41,9 @@ function Dashboard() {
     const userCpNumber = localStorage.getItem('Cpnumber') || '';
     const userUsername = localStorage.getItem('Username') || '';
     const userPassword = localStorage.getItem('Password') || '';
+    const userImage = localStorage.getItem('ProfilePic') || '';
 
+    const [updatedProfilePicture, setUpdatedProfilePicture] = useState(null);
 
     const [showUpdateDetailsModal, setShowUpdateDetailsModal] = useState(false);
     const [updatedUserDetails, setUpdatedUserDetails] = useState({
@@ -63,14 +66,12 @@ function Dashboard() {
     };
 
     const handleUpdateUserDetails = () => {
-
         const isEmptyField = Object.values(updatedUserDetails).some(value => value === '');
         if (isEmptyField) {
             alert('Please fill in all fields.');
             return;
         }
 
-        console.log("asdas");
         const formData = new FormData();
         formData.append("operation", "updateDetails");
         formData.append("json", JSON.stringify({
@@ -84,6 +85,11 @@ function Dashboard() {
             "userId": sessionStorage.getItem("id")
         }));
 
+
+        if (updatedProfilePicture) {
+            formData.append('profilePicture', updatedProfilePicture);
+        }
+
         axios.post('http://localhost/api/user.php', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
@@ -92,6 +98,7 @@ function Dashboard() {
             .then(function (response) {
                 console.log(response.data);
 
+                // Update local storage with new details
                 localStorage.removeItem('Firstname');
                 localStorage.removeItem('Middlename');
                 localStorage.removeItem('Lastname');
@@ -106,12 +113,14 @@ function Dashboard() {
                 localStorage.setItem('Cpnumber', updatedUserDetails.cpnumber);
                 localStorage.setItem('Username', updatedUserDetails.username);
 
+                // Reload the page
                 window.location.reload();
             })
             .catch(function (error) {
                 console.error('Error updating details:', error);
             });
     };
+
 
 
     const handleItemClick = (item) => {
@@ -143,7 +152,7 @@ function Dashboard() {
 
 
             setData(res.data);
-            
+
             localStorage.getItem(`comments_${postId}`);
 
 
@@ -178,6 +187,12 @@ function Dashboard() {
         setIsDropdownOpen(!isDropdownOpen);
     };
 
+    const handleProfilePictureChange = (e) => {
+        const file = e.target.files[0];
+        setUpdatedProfilePicture(file);
+    };
+
+
     return (
         <>
             <div className="h-screen">
@@ -195,7 +210,7 @@ function Dashboard() {
 
                                 <div className="hidden md:flex flex-grow justify-end items-center">
                                     <a href="/sync/Dashboard" className="mr-4 text-gray-300 hover:text-blue-500 no-underline">
-                                        <FontAwesomeIcon icon={faHome} size='xl' style={{ color: dashboardActive ? '#ffffff' : '#3766FE' }} />
+                                        <FontAwesomeIcon icon={faHome} size='xl' className="home-icon-circle" style={{ color: dashboardActive ? '#ffffff' : '#3766FE' }} />
                                     </a>
 
                                     <a href="/sync/Profile" className="mr-4 text-gray-300 hover:text-blue-500 no-underline">
@@ -207,7 +222,8 @@ function Dashboard() {
                                     <div className="flex items-center">
                                         <div className="relative">
                                             <button onClick={toggleDropdown} className="flex items-center text-gray-300 hover:text-green-500 focus:outline-none">
-                                                <span className="mr-2 text-lg">{userFirstname}</span>
+                                                <img src={"http://localhost/api/profPic/" + userImage} className="rounded-full" alt="" style={{ width: '35px', height: '35px' }} />
+                                                <span className="mr-2 ml-1 text-lg">{userFirstname}</span>
                                                 <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M10 12.586l3.707-3.707a1 1 0 011.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 12.586z" clipRule="evenodd" />
                                                 </svg>
@@ -257,8 +273,9 @@ function Dashboard() {
                                     <div className="flex items-center">
                                         <div className="relative">
                                             <button onClick={toggleDropdown} className="flex items-center text-gray-300 hover:text-green-500 focus:outline-none">
-                                                <span className="mr-2 text-lg">{userFirstname}</span>
-                                                <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                                <img src={"http://localhost/api/profPic/" + userImage} className="rounded-full mt-3" alt="" style={{ width: '35px', height: '35px' }} />
+                                                <span className="mr-2 ml-1 mt-3 text-lg">{userFirstname}</span>
+                                                <svg className="h-4 w-4 mt-3 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M10 12.586l3.707-3.707a1 1 0 011.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 12.586z" clipRule="evenodd" />
                                                 </svg>
                                             </button>
@@ -285,7 +302,7 @@ function Dashboard() {
                 </div>
 
 
- 
+
 
 
                 <div className="container mx-auto px-6 py-18" style={{ marginBottom: "30px" }}>
@@ -303,8 +320,6 @@ function Dashboard() {
                         <div className="mx-auto" style={{ maxWidth: '600px', width: '100%' }}>
                             {data.map((item, index) => (
                                 <UserPost item={item} key={index} />
-                                // <UserPost item={item} key={index} commentCount={commentCount} />
-                                
                             ))}
                         </div>
                     </div>
@@ -341,6 +356,10 @@ function Dashboard() {
                                 <tr>
                                     <td style={{ backgroundColor: '#242526' }} className="text-white"><strong>Username:</strong></td>
                                     <td style={{ backgroundColor: '#242526' }} className="text-white">{userUsername}</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white"><strong>Profile Picture:</strong></td>
+                                    <td style={{ backgroundColor: '#242526' }} className="text-white">{userImage}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -396,6 +415,10 @@ function Dashboard() {
                             <div className="mb-3">
                                 <label htmlFor="password" className="form-label">Password</label>
                                 <input type="text" className="form-control" id="updatedPassword" required value={updatedUserDetails.password} onChange={(e) => setUpdatedUserDetails({ ...updatedUserDetails, password: e.target.value })} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="profilePicture" className="form-label">Profile Picture</label>
+                                <input type="file" className="form-control" id="profilePicture" onChange={handleProfilePictureChange} accept="image/*" />
                             </div>
                         </form>
                     </Modal.Body>

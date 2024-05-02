@@ -35,6 +35,8 @@ function Profile() {
     const userCpNumber = localStorage.getItem('Cpnumber') || '';
     const userUsername = localStorage.getItem('Username') || '';
     const userPassword = localStorage.getItem('Password') || '';
+    const userImage = localStorage.getItem('ProfilePic') || '';
+
 
     const [showUpdateDetailsModal, setShowUpdateDetailsModal] = useState(false);
     const [updatedUserDetails, setUpdatedUserDetails] = useState({
@@ -223,7 +225,8 @@ function Profile() {
                                     <div className="flex items-center">
                                         <div className="relative">
                                             <button onClick={toggleDropdown} className="flex items-center text-gray-300 hover:text-white focus:outline-none">
-                                                <span className="mr-2 text-lg">{userFirstname}</span>
+                                                <img src={"http://localhost/api/profPic/" + userImage} className="rounded-full" alt="" style={{ width: '35px', height: '35px' }} />
+                                                <span className="mr-2 ml-1 text-lg">{userFirstname}</span>
                                                 <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M10 12.586l3.707-3.707a1 1 0 011.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 12.586z" clipRule="evenodd" />
                                                 </svg>
