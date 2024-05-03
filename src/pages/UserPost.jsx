@@ -578,9 +578,20 @@ const UserPost = ({ item, currentUse, comment }) => {
                         </div>
                     )}
 
-                    <div style={{ display: 'flex', alignItems: 'center' }} className='mt-3'>
-                        {likes}
-                        <div className="cursor-pointer text-gray-300 hover:text-blue-500" style={{ display: 'flex', alignItems: 'center' }}>
+                    <div className="flex justify-between  mt-3" style={{ fontSize: "14px" }}>
+                        <p className='text-start'>
+                            <FontAwesomeIcon icon={faThumbsUp} className="mr-1 text-blue-400" />
+                            {likes}
+                        </p>
+                        <p className='text-end'>
+                            {item.countComment} <FontAwesomeIcon icon={faComment} className="mr-1" />
+                        </p>
+                    </div>
+
+                    <hr style={{ width: '100%', borderTop: '1px solid #ccc', margin: '-2px 0', }} />
+
+                    <div className='flex items-center mt-3'>
+                        <div className="cursor-pointer text-gray-300 hover:text-blue-500 flex items-center">
                             <FontAwesomeIcon
                                 className={isUserLiked ? 'text-blue-500' : ''}
                                 icon={faThumbsUp}
@@ -591,8 +602,7 @@ const UserPost = ({ item, currentUse, comment }) => {
                                 {isUserLiked ? 'Liked' : 'Like'}
                             </span>
                         </div>
-                        <div className="ml-4 sm:ml-28 flex items-center cursor-pointer text-gray-300 hover:text-green-500">
-                            {item.countComment}
+                        <div className="ml-12 sm:ml-36 flex items-center cursor-pointer text-gray-300 hover:text-green-500">
                             <FontAwesomeIcon
                                 icon={faComment}
                                 className="w-8 h-8 ml-2 cursor-pointer"
@@ -611,7 +621,7 @@ const UserPost = ({ item, currentUse, comment }) => {
             <Modal show={showCommentModal} onHide={handleCloseCommentModal}>
                 <Modal.Body className="bg-[#242526] text-white">
                     <div className="mb-4">
-                        {/* User details and item caption */}
+
                         <div className="flex">
                             <img src={"http://localhost/api/profPic/" + item.prof_pic} className="rounded-full" alt="" style={{ width: '45px', height: '45px' }} />
                             <div style={{ marginLeft: '10px' }}>
@@ -621,11 +631,12 @@ const UserPost = ({ item, currentUse, comment }) => {
                         </div>
                         <p className='text-start text-[15.5px]'>{item.caption}</p>
 
-                        {/* Uploaded image */}
-                        <img src={"http://localhost/sync/uploads/" + item.filename} className="rounded-lg mx-auto" style={{ maxWidth: '100%', maxHeight: '400px' }} />
+                        {item.filename && (
+                            <img src={"http://localhost/sync/uploads/" + item.filename} className="rounded-lg mx-auto" style={{ maxWidth: '100%', maxHeight: '400px' }} />
+                        )}
                     </div>
 
-                    {/* Likes and Comments */}
+
                     <div className="flex justify-between text-gray-400" style={{ fontSize: "14px" }}>
                         <p className='text-start'>
                             <FontAwesomeIcon icon={faThumbsUp} className="mr-1" />
@@ -636,11 +647,11 @@ const UserPost = ({ item, currentUse, comment }) => {
                         </p>
                     </div>
 
-                    {/* Display comments */}
+
                     {comments.length > 0 && comments.map((comment, index) => (
                         <div key={index} className="mb-2">
                             <div className={`bg-slate-900 text-white p-2 rounded-lg ${comment.userComment ? 'bg-blue-100' : ''}`}>
-                                {/* Edit and delete buttons for user's comments */}
+
                                 <div className="relative">
                                     {comment.comment_userID === localStorage.getItem('id') && (
                                         <div className="flex items-center">
@@ -664,35 +675,43 @@ const UserPost = ({ item, currentUse, comment }) => {
                                         </div>
                                     )}
                                 </div>
-                                {/* Edit comment textarea */}
-                                {editingCommentId === comment.comment_id ? (
-                                    <div className="flex items-center">
-                                        <img src={"http://localhost/api/profPic/" + comment.prof_pic} className="rounded-full mr-2" alt="" style={{ width: '45px', height: '45px' }} />
-                                        <div>
-                                            <p className="font-bold">{comment.firstname}</p>
-                                        </div>
 
-                                        <textarea
-                                            value={editedComment}
-                                            onChange={(e) => setEditedComment(e.target.value)}
-                                            className="outline-none bg-slate-900 text-white w-full"
-                                        />
-                                        <div className="text-right mt-2">
-                                            <button type="button" className="inline-flex items-center justify-center rounded-full text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2" onClick={() => handleEditComment(comment.comment_id)}>
-                                                <FontAwesomeIcon icon={faComment} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    // Display comment
+                                {editingCommentId === comment.comment_id ? (
                                     <>
-                                        <div className="flex">
-                                            <img src={"http://localhost/api/profPic/" + comment.prof_pic} className="rounded-full mr-2" alt="" style={{ width: '45px', height: '45px' }} />
+                                        <div className="flex items-center">
+                                            <img src={"http://localhost/api/profPic/" + comment.prof_pic} className="rounded-full mr-2 mb-4" alt="" style={{ width: '45px', height: '45px' }} /> {/* Profile picture */}
                                             <div>
                                                 <p style={{ fontSize: "17px", marginBottom: '5px' }}>{comment.firstname}</p>
                                                 <p className="text-right text-gray-500 text-xs">{comment.comment_date_created}</p>
                                             </div>
                                         </div>
+
+
+                                        <textarea
+                                            value={editedComment}
+                                            onChange={(e) => setEditedComment(e.target.value)}
+                                            className="outline-none bg-slate-900 text-white w-full "
+
+                                        />
+                                        <div className="text-right mt-2">
+                                            <button type="button" className="inline-flex justify-center py-1 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2" onClick={() => handleEditComment(comment.comment_id)}>Save</button>
+                                            <button type="button" className="inline-flex justify-center py-1 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onClick={() => setEditingCommentId(null)}>Cancel</button>
+
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div style={{ display: 'flex' }}>
+                                            <img src={"http://localhost/api/profPic/" + comment.prof_pic} className="rounded-full mr-2" alt="" style={{ width: '45px', height: '45px' }} /> {/* Profile picture */}
+                                            <div >
+                                                <p style={{ fontSize: "17px", marginBottom: '5px' }} >{comment.firstname}</p>
+
+                                                <p className="text-right text-gray-500 text-xs">{comment.comment_date_created}</p>
+                                            </div>
+                                        </div>
+
+
+
                                         <p>{comment.comment_message}</p>
                                     </>
                                 )}
@@ -700,7 +719,7 @@ const UserPost = ({ item, currentUse, comment }) => {
                         </div>
                     ))}
 
-                    {/* Comment input */}
+
                     <form onSubmit={handleSubmitComment} className="mb-4">
                         <div className="relative flex">
                             <img src={"http://localhost/api/profPic/" + userImage} className="rounded-full mt-2.5" alt="" style={{ width: '40px', height: '40px' }} />
