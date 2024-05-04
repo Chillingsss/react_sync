@@ -62,7 +62,7 @@ const CreatePost = () => {
     return (
         <>
             <div className="flex justify-center">
-                <Button onClick={handleShow} className="mt-40 bg-transparent border border-gray-600 text-gray-600">
+                <Button onClick={handleShow} className=" bg-transparent border border-gray-600 text-gray-600">
                     Whats on your mind?
                 </Button>
             </div>

@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { Container, Card, Modal, Button, Image, Row, Form } from 'react-bootstrap';
-import { faComment, faThumbsUp, faTrash, faEdit, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faEdit, faPaperPlane, faThumbsUp, faComment, faArrowUp, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faThumbsUp as farThumbsUp, faComment as farComment, faPaperPlane as farPaperPlane, faEdit as farEdit } from '@fortawesome/free-regular-svg-icons';
+import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faHome, faUser, faBell, faSignOutAlt, } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -534,22 +536,23 @@ const UserPost = ({ item, currentUse, comment }) => {
                                     <div className="flex items-center">
                                         {isEditingCaptionId === item.id ? (
                                             <>
-                                                <button onClick={() => handleUpdateCaption(item.id)} className="mr-5 flex items-center text-gray-300 hover:text-green-500 focus:outline-none ">
-                                                    Save
+                                                <button onClick={() => handleUpdateCaption(item.id)} className="mr-5 flex items-center text-gray-300 hover:text-green-500 focus:outline-none">
+                                                    <FontAwesomeIcon icon={faCheck} className="mr-1" />
                                                 </button>
                                                 <button onClick={() => handleCancelEditCaption()} className="mr-5 flex items-center text-gray-300 hover:text-red-500 focus:outline-none">
-                                                    Cancel
+                                                    <FontAwesomeIcon icon={faTimes} className="mr-1" />
                                                 </button>
+
                                             </>
                                         ) : (
                                             <button onClick={() => handleOpenEditCaption(item.id, item.caption)} className="flex items-center text-gray-300 hover:text-green-500 focus:outline-none">
-                                                <FontAwesomeIcon icon={faEdit} className="mr-5" />
+                                                <FontAwesomeIcon icon={farEdit} className="mr-5" />
                                             </button>
                                         )}
                                         <FontAwesomeIcon
-                                            icon={faTrash}
+                                            icon={faTrashAlt}
                                             className=" hover:text-red-500"
-                                            style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                                            style={{ width: '17px', height: '17px', cursor: 'pointer' }}
                                             onClick={() => handleDelete(item.id)}
                                         />
                                     </div>
@@ -594,7 +597,7 @@ const UserPost = ({ item, currentUse, comment }) => {
                         <div className="cursor-pointer text-gray-300 hover:text-blue-500 flex items-center">
                             <FontAwesomeIcon
                                 className={isUserLiked ? 'text-blue-500' : ''}
-                                icon={faThumbsUp}
+                                icon={isUserLiked ? faThumbsUp : farThumbsUp}
                                 style={{ width: '30px', height: '30px', cursor: 'pointer', marginLeft: '10px' }}
                                 onClick={handleLikePost}
                             />
@@ -604,7 +607,7 @@ const UserPost = ({ item, currentUse, comment }) => {
                         </div>
                         <div className="ml-12 sm:ml-36 flex items-center cursor-pointer text-gray-300 hover:text-green-500">
                             <FontAwesomeIcon
-                                icon={faComment}
+                                icon={farComment}
                                 className="w-8 h-8 ml-2 cursor-pointer"
                                 onClick={() => handleShowCommentModal(item.id)}
                             />
@@ -657,7 +660,7 @@ const UserPost = ({ item, currentUse, comment }) => {
                                         <div className="flex items-center">
                                             <button className="flex items-center text-gray-300 hover:text-white focus:outline-none absolute top-0 right-0">
                                                 <FontAwesomeIcon
-                                                    icon={faEdit}
+                                                    icon={farEdit}
                                                     className="mr-1 hover:text-blue-500"
                                                     style={{ width: '15px', height: '15px', cursor: 'pointer', marginRight: '20px' }}
                                                     onClick={() => {
@@ -666,7 +669,7 @@ const UserPost = ({ item, currentUse, comment }) => {
                                                     }}
                                                 />
                                                 <FontAwesomeIcon
-                                                    icon={faTrash}
+                                                    icon={faTrashAlt}
                                                     className="mr-1 hover:text-red-500"
                                                     style={{ width: '15px', height: '15px', cursor: 'pointer' }}
                                                     onClick={() => deleteComment(comment.comment_id)}
@@ -694,8 +697,17 @@ const UserPost = ({ item, currentUse, comment }) => {
 
                                         />
                                         <div className="text-right mt-2">
-                                            <button type="button" className="inline-flex justify-center py-1 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2" onClick={() => handleEditComment(comment.comment_id)}>Save</button>
-                                            <button type="button" className="inline-flex justify-center py-1 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onClick={() => setEditingCommentId(null)}>Cancel</button>
+                                            <button type="button"
+                                                className="inline-flex justify-center py-1 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2"
+                                                onClick={() => handleEditComment(comment.comment_id)}>
+                                                <FontAwesomeIcon icon={faCheck} className="mr-1" />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="inline-flex justify-center py-1 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                                onClick={() => setEditingCommentId(null)}>
+                                                <FontAwesomeIcon icon={faTimes} className="mr-1" />
+                                            </button>
 
                                         </div>
                                     </>
@@ -731,12 +743,12 @@ const UserPost = ({ item, currentUse, comment }) => {
                                 value={newComment}
                                 onChange={(e) => setNewComment(e.target.value)}
                             />
-                            <button type="submit" className="absolute inset-y-0 right-0 flex items-center justify-center rounded-full text-white cursor-pointer mr-2" >
-                                <FontAwesomeIcon icon={faPaperPlane} style={{ color: "gray" }} />
+                            <button type="submit" className="absolute inset-y-0 right-0 flex items-center justify-center rounded-full text-white cursor-pointer mr-3 mt-1" >
+                                <FontAwesomeIcon icon={faArrowUp} style={{ color: newComment ? "#3366ff" : "gray" }} />
                             </button>
-
                         </div>
                     </form>
+
 
 
                     <div className="text-right">
