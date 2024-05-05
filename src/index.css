@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+
 body {
     background-color: #18191a !important;
+}
+
+.great-vibes {
+    font-family: 'Great Vibes', cursive;
 }

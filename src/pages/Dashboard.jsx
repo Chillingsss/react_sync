@@ -1,5 +1,5 @@
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faHome, faUser, faBell, faSignOutAlt, faSignOut, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faUser, faBell, faSignOutAlt, faMessage, faSignOut, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { MdHome } from 'react-icons/md';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -212,13 +212,10 @@ function Dashboard() {
                     <div className="container mx-auto px-6 py-4">
                         <div className="flex items-center mt-3">
 
-                            <div className="flex items-start" style={{ position: 'absolute', left: 10 }}>
-                                <svg className="h-8 w-8 text-white mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M10 2C5.4 2 2 5.4 2 10s3.4 8 8 8 8-3.4 8-8-3.4-8-8-8zm0 14.5c-3.6 0-6.5-2.9-6.5-6.5S6.4 3.5 10 3.5 16.5 6.4 16.5 10 13.6 16.5 10 16.5z" clipRule="evenodd" />
-                                    <path fillRule="evenodd" d="M10 11.1c-1.5 0-2.8-.8-3.5-2.1l-.7 1.2c.9 1.4 2.4 2.4 4.2 2.4 2.8 0 5-2.2 5-5s-2.2-5-5-5c-1.6 0-3 .7-4 1.8V5H5v.5h1.1V7h1.3V5H8.3v-.8C9 3.6 9.8 3 10.7 3c.5 0 1 .2 1.5.5l-.9 1.1c-.4-.3-.8-.6-1.3-.6-1.1 0-2 .9-2 2s.9 2 2 2c.4 0 .8-.1 1.2-.3l.8 1.1c-.6.4-1.3.7-2 .7zm-.6 1.9c-.5 0-1-.1-1.5-.3l-.8-1.1c.7-.3 1.4-.5 2.3-.5 1.6 0 3.2.8 4 2.1l.7-1.2c-1.1-1.6-2.9-2.5-5-2.5-2.8 0-5 2.2-5 5s2.2 5 5 5c2.1 0 3.9-1 5-2.5l-.7-1.2c-.8 1.4-2.4 2.2-4 2.2z" clipRule="evenodd" />
-                                </svg>
-                                <h1 className="text-white text-lg font-bold">Sync</h1>
+                            <div className="flex items-start" style={{ position: 'absolute', left: 15 }}>
+                                <h1 className="text-white text-xl great-vibes">Sync</h1>
                             </div>
+
 
                             <div className="hidden md:flex flex-grow items-center" style={{ position: 'absolute', right: 20 }}>
                                 <a href="/sync/Dashboard" className="mr-4 text-gray-300 hover:text-blue-500 no-underline">
@@ -226,7 +223,7 @@ function Dashboard() {
                                 </a>
 
                                 <a href="/sync/Profile" className="mr-4 text-gray-300 hover:text-blue-500 no-underline">
-                                    <FontAwesomeIcon icon={faUser} size='xl' />
+                                    <FontAwesomeIcon icon={faMessage} size='xl' />
                                 </a>
                                 <a href="#" className="mr-4 text-gray-300 hover:text-blue-500 no-underline">
                                     <FontAwesomeIcon icon={faBell} size='xl' />
@@ -242,7 +239,7 @@ function Dashboard() {
                                         </button>
 
                                         {isDropdownOpen && (
-                                            <div ref={dropdownRef} className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center">
+                                            <div ref={dropdownRef} className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center right-0">
                                                 <div className="flex items-center cursor-pointer mr-5 mt-3 text-gray-300 hover:text-blue-500" onClick={handleShowModal}>
                                                     <FontAwesomeIcon icon={faUser} size='xl' className="ml-2 hover:text-blue-500" />
                                                     <span className="mr-1 ml-4">Personal&nbsp;Details</span>
@@ -274,7 +271,7 @@ function Dashboard() {
                                 <a href="/sync/Dashboard" className="mt-4 ml-2 text-gray-300 hover:text-white no-underline">
                                     <FontAwesomeIcon icon={faHome} size='xl' style={{ color: dashboardActive ? '#ffffff' : '#3766FE' }} /> Home
                                 </a>
-                                <a href="#" className="mt-4 ml-2 text-gray-300 hover:text-white no-underline">
+                                <a href="/sync/Profile" className="mt-4 ml-2 text-gray-300 hover:text-white no-underline">
                                     <FontAwesomeIcon icon={faUser} size='xl' /> Profile
                                 </a>
                                 <a href="#" className="mt-4 ml-2 text-gray-300 hover:text-white no-underline">
@@ -293,7 +290,7 @@ function Dashboard() {
                                         </button>
 
                                         {isDropdownOpen && (
-                                            <div ref={dropdownRef} className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center">
+                                            <div ref={dropdownRef} className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center right-0">
                                                 <div className="flex items-center cursor-pointer mr-5 mt-3 text-gray-300 hover:text-blue-500" onClick={handleShowModal}>
                                                     <FontAwesomeIcon icon={faUser} size='xl' className="ml-2 hover:text-blue-500" />
                                                     <span className="mr-1 ml-4">Personal&nbsp;Details</span>
@@ -312,14 +309,14 @@ function Dashboard() {
                     </div>
                 </nav>
 
-                <div className="flex justify-start items-start">
-                    <img src={"http://localhost/api/profPic/" + userImage} className="rounded-full mt-28 ml-2" alt="" style={{ width: '35px', height: '35px' }} />
-                    <p className="text-white mt-28 ml-2">{usersFirstname} {userLastname}</p>
+                <div className="position-fixed top-0 left-0">
+                    <a href="/sync/Profile" className="flex justify-start items-start cursor-pointer no-underline">
+                        <img src={"http://localhost/api/profPic/" + userImage} className="rounded-full mt-28 ml-4" alt="" style={{ width: '35px', height: '35px' }} />
+                        <p className="text-white mt-28 ml-2">
+                            <span className="hover:text-blue-400">{usersFirstname} {userLastname}</span>
+                        </p>
+                    </a>
                 </div>
-
-
-
-
 
 
                 <div className="container mx-auto px-6 py-18" style={{ marginBottom: "30px" }}>
@@ -327,12 +324,6 @@ function Dashboard() {
                         <CreatePost />
                     </div>
                 </div>
-
-
-
-
-
-
 
                 <div className=" d-flex justify-content-center align-items-center">
                     <div className="col-12 col-md-8">

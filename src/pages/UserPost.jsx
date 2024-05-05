@@ -105,7 +105,7 @@ const UserPost = ({ item, currentUse, comment }) => {
             } else if (res.data === 1) {
                 setLikes(parseInt(likes) + 1);
             } else {
-                alert("there was something wrong");
+                toast.error("there was something wrong");
                 console.log(res.data);
             }
 
@@ -121,7 +121,7 @@ const UserPost = ({ item, currentUse, comment }) => {
         e.preventDefault();
 
         if (!newComment) {
-            alert('Please enter a comment');
+            toast.error('Please enter a comment');
             return;
         }
 
@@ -354,11 +354,11 @@ const UserPost = ({ item, currentUse, comment }) => {
                 window.location.reload();
             } else {
                 console.error('Error updating caption:', response.data);
-                alert("Error updating caption. Please try again later.");
+                toast.error("Error updating caption. Please try again later.");
             }
         } catch (error) {
             console.error('Error updating caption:', error);
-            alert("Error updating caption. Please try again later.");
+            toast.error("Error updating caption. Please try again later.");
         }
     };
 
