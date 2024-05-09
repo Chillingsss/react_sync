@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import Profile from './pages/Profile';
+import UserProfile from './pages/UserProfile';
 
 
 
@@ -24,6 +25,8 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/userProfile" element={<UserProfile />} />
+
 
           </Routes>
         </BrowserRouter>

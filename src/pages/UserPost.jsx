@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { Container, Card, Modal, Button, Image, Row, Form } from 'react-bootstrap';
-import { faTrash, faEdit, faPaperPlane, faThumbsUp, faComment, faArrowUp, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faEdit, faPaperPlane, faThumbsUp, faComment, faArrowUp, faCheck, faTimes, faBan } from '@fortawesome/free-solid-svg-icons';
 import { faThumbsUp as farThumbsUp, faComment as farComment, faPaperPlane as farPaperPlane, faEdit as farEdit } from '@fortawesome/free-regular-svg-icons';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
@@ -26,6 +26,7 @@ const UserPost = ({ item, currentUse, comment }) => {
     const [showCommentModal, setShowCommentModal] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [comments, setComments] = useState([]);
+    const [showBanIcon, setShowBanIcon] = useState(false);
 
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedItemId, setSelectedItemId] = useState(null);
@@ -428,6 +429,16 @@ const UserPost = ({ item, currentUse, comment }) => {
         setShowCommentModal(true);
     }
 
+    function openUserProfile(userID) {
+        console.log("asdasd" + userID);
+        sessionStorage.setItem("idtopost", userID);
+        sessionStorage.setItem("firstname", item.firstname);
+        sessionStorage.setItem("lastname", item.lastname);
+        sessionStorage.setItem("userProfile", item.prof_pic);
+        window.location.href = `/sync/UserProfile?userId=${userID}`;
+    }
+
+
 
 
     useEffect(() => {
@@ -511,17 +522,23 @@ const UserPost = ({ item, currentUse, comment }) => {
                 <Card.Body>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex' }}>
-                            <img src={"http://localhost/api/profPic/" + item.prof_pic} className="rounded-full" alt="" style={{ width: '45px', height: '45px' }} />
+                            <a href="#" onClick={() => openUserProfile(item.userID)} className="no-underline">
+                                <img src={"http://localhost/api/profPic/" + item.prof_pic} className="rounded-full" alt="" style={{ width: '45px', height: '45px' }} />
+                            </a>
                             <div style={{ marginLeft: '10px' }}>
-                                <p style={{ fontSize: "17px", marginBottom: '5px' }} >{item.firstname}</p>
+                                <a href="#" onClick={() => openUserProfile(item.userID)} className="no-underline text-gray-300">
+                                    <p style={{ fontSize: "17px", marginBottom: '5px' }}>{item.firstname}</p>
+                                </a>
                                 <p className="text-right text-gray-500 text-xs ">{item.upload_date}</p>
                             </div>
                         </div>
+
+
                         <div className="relative" style={{ marginLeft: 'auto' }}>
                             {item.userID === localStorage.getItem('id') && (
                                 <>
                                     <button onClick={toggleDropdown} className="flex items-center rounded text-gray-300 hover:text-white focus:outline-none">
-                                        <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <svg className="h-4 w-5 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                             <circle cx="10" cy="10" r="2" fill="#fff" />
                                             <circle cx="5" cy="10" r="2" fill="#fff" />
                                             <circle cx="15" cy="10" r="2" fill="#fff" />
@@ -743,8 +760,17 @@ const UserPost = ({ item, currentUse, comment }) => {
                                 value={newComment}
                                 onChange={(e) => setNewComment(e.target.value)}
                             />
-                            <button type="submit" className="absolute inset-y-0 right-0 flex items-center justify-center rounded-full text-white cursor-pointer mr-3 mt-1" >
-                                <FontAwesomeIcon icon={faArrowUp} style={{ color: newComment ? "#3366ff" : "gray" }} />
+                            <button
+                                type="submit"
+                                className="absolute inset-y-0 right-0 flex items-center justify-center rounded-full text-white cursor-pointer mr-3 mt-1"
+                                onMouseEnter={() => setShowBanIcon(!newComment)}
+                                onMouseLeave={() => setShowBanIcon(false)}
+                            >
+                                <FontAwesomeIcon
+                                    icon={showBanIcon ? faBan : faArrowUp}
+                                    style={{ color: newComment ? "#3366ff" : "gray", transition: 'color 0.3s' }}
+                                    title={!newComment ? "Prohibited" : ""}
+                                />
                             </button>
                         </div>
                     </form>

@@ -262,7 +262,7 @@ function Profile() {
                                     <FontAwesomeIcon icon={faHome} size='xl' /> Home
                                 </a>
                                 <a href="/sync/Profile" className="mt-4 ml-2 text-gray-300 hover:text-white no-underline">
-                                    <FontAwesomeIcon icon={faUser} size='xl' style={{ color: dashboardActive ? '#ffffff' : '#3766FE' }} /> Profile
+                                    <FontAwesomeIcon icon={faMessage} size='xl' /> Message
                                 </a>
                                 <a href="#" className="mt-4 ml-2 text-gray-300 hover:text-white no-underline">
                                     <FontAwesomeIcon icon={faBell} size='xl' /> Notification

@@ -15,6 +15,7 @@ import { Home } from 'react-feather';
 
 
 import { useNavigate, useLocation } from 'react-router-dom';
+import { toast } from 'sonner';
 
 library.add(faHome, faUser, faBell, faSignOutAlt);
 
@@ -73,7 +74,7 @@ function Dashboard() {
     const handleUpdateUserDetails = () => {
         const isEmptyField = Object.values(updatedUserDetails).some(value => value === '');
         if (isEmptyField) {
-            alert('Please fill in all fields.');
+            toast.error('Please fill in all fields.');
             return;
         }
 
@@ -272,7 +273,7 @@ function Dashboard() {
                                     <FontAwesomeIcon icon={faHome} size='xl' style={{ color: dashboardActive ? '#ffffff' : '#3766FE' }} /> Home
                                 </a>
                                 <a href="/sync/Profile" className="mt-4 ml-2 text-gray-300 hover:text-white no-underline">
-                                    <FontAwesomeIcon icon={faUser} size='xl' /> Profile
+                                    <FontAwesomeIcon icon={faMessage} size='xl' /> Message
                                 </a>
                                 <a href="#" className="mt-4 ml-2 text-gray-300 hover:text-white no-underline">
                                     <FontAwesomeIcon icon={faBell} size='xl' /> Notification
