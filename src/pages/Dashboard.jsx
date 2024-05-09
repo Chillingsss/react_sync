@@ -213,44 +213,53 @@ function Dashboard() {
                     <div className="container mx-auto px-6 py-4">
                         <div className="flex items-center mt-3">
 
-                            <div className="flex items-start" style={{ position: 'absolute', left: 15 }}>
-                                <h1 className="text-white text-xl great-vibes">Sync</h1>
+                            <div className="flex items-center " style={{ position: 'absolute', left: 15 }}>
+                                <h1 className="text-white great-vibes">Sync</h1>
                             </div>
 
 
                             <div className="hidden md:flex flex-grow items-center" style={{ position: 'absolute', right: 20 }}>
                                 <a href="/sync/Dashboard" className="mr-4 text-gray-300 hover:text-blue-500 no-underline">
-                                    <FontAwesomeIcon icon={faHome} size='xl' className="home-icon-circle" style={{ color: dashboardActive ? '#ffffff' : '#3766FE' }} />
+                                    <FontAwesomeIcon icon={faHome} size='xl' className="home-icon-circle" style={{ color: dashboardActive ? '#ffffff' : '#3766FE' }} title='Home' />
                                 </a>
 
-                                <a href="/sync/Profile" className="mr-4 text-gray-300 hover:text-blue-500 no-underline">
+                                <a href="/sync/Profile" className="mr-4 text-gray-300 hover:text-blue-500 no-underline" title='Message'>
                                     <FontAwesomeIcon icon={faMessage} size='xl' />
                                 </a>
-                                <a href="#" className="mr-4 text-gray-300 hover:text-blue-500 no-underline">
+                                <a href="#" className="mr-4 text-gray-300 hover:text-blue-500 no-underline" title='Notification'>
                                     <FontAwesomeIcon icon={faBell} size='xl' />
                                 </a>
                                 <div className="flex items-center">
                                     <div className="relative">
                                         <button onClick={toggleDropdown} className="flex items-center text-gray-300 hover:text-green-500 focus:outline-none">
-                                            <img src={"http://localhost/api/profPic/" + userImage} className="rounded-full" alt="" style={{ width: '35px', height: '35px' }} />
-                                            <span className={`mr-2 ml-1 text-lg ${isNameHighlighted ? 'text-green-500' : ''}`}>{userFirstname}</span>
+                                            <img src={"http://localhost/api/profPic/" + userImage} className="rounded-full" alt="" style={{ width: '35px', height: '35px' }} title='Profile' />
+                                            {/* <span className={`mr-2 ml-1 text-lg ${isNameHighlighted ? 'text-green-500' : ''}`}>{userFirstname}</span> */}
                                             <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M10 12.586l3.707-3.707a1 1 0 011.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 12.586z" clipRule="evenodd" />
                                             </svg>
                                         </button>
 
                                         {isDropdownOpen && (
-                                            <div ref={dropdownRef} className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center right-0">
-                                                <div className="flex items-center cursor-pointer mr-5 mt-3 text-gray-300 hover:text-blue-500" onClick={handleShowModal}>
+                                            <div ref={dropdownRef} className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-start right-0 w-60">
+                                                <a href="/sync/Profile" className="flex justify-start items-start cursor-pointer no-underline mt-3">
+                                                    <img src={"http://localhost/api/profPic/" + userImage} className="rounded-full ml-1" alt="" style={{ width: '35px', height: '35px' }} />
+                                                    <p className="text-white ml-2 mt-1">
+                                                        <span className="hover:text-blue-400 ">{usersFirstname} {userLastname}</span>
+                                                    </p>
+                                                </a>
+                                                <hr style={{ width: '100%', borderTop: '1px solid #ccc', margin: '-2px 0', }} />
+
+                                                <div className="flex items-center cursor-pointer mr-5 mt-4 text-gray-300 hover:text-blue-500" onClick={handleShowModal}>
                                                     <FontAwesomeIcon icon={faUser} size='xl' className="ml-2 hover:text-blue-500" />
                                                     <span className="mr-1 ml-4">Personal&nbsp;Details</span>
                                                 </div>
-                                                <div className="flex items-center cursor-pointer mt-3 mr-2 mb-3 text-gray-300 hover:text-red-500" onClick={handleLogout}>
-                                                    <FontAwesomeIcon icon={faSignOutAlt} size='xl' className=" ml-0 hover:text-red-500" />
-                                                    <span className="ml-3 mr-16">Logout</span>
+                                                <div className="flex items-center cursor-pointer mt-3 mr-5 mb-3 text-gray-300 hover:text-red-500" onClick={handleLogout}>
+                                                    <FontAwesomeIcon icon={faSignOutAlt} size='xl' className=" ml-2 hover:text-red-500" />
+                                                    <span className=" mr-16" style={{ marginLeft: '13.5px' }}>Logout</span>
                                                 </div>
                                             </div>
                                         )}
+
                                     </div>
 
                                 </div>
@@ -292,6 +301,12 @@ function Dashboard() {
 
                                         {isDropdownOpen && (
                                             <div ref={dropdownRef} className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center right-0">
+                                                <a href="/sync/Profile" className="flex justify-start items-start cursor-pointer no-underline">
+                                                    <img src={"http://localhost/api/profPic/" + userImage} className="rounded-full mt-28 ml-4" alt="" style={{ width: '35px', height: '35px' }} />
+                                                    <p className="text-white mt-28 ml-2">
+                                                        <span className="hover:text-blue-400">{usersFirstname} {userLastname}</span>
+                                                    </p>
+                                                </a>
                                                 <div className="flex items-center cursor-pointer mr-5 mt-3 text-gray-300 hover:text-blue-500" onClick={handleShowModal}>
                                                     <FontAwesomeIcon icon={faUser} size='xl' className="ml-2 hover:text-blue-500" />
                                                     <span className="mr-1 ml-4">Personal&nbsp;Details</span>

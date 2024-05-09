@@ -206,11 +206,7 @@ function UserProfile() {
                     <div className="container mx-auto px-6 py-4">
                         <div className="flex items-center mt-3">
                             <div className="flex items-start" style={{ position: 'absolute', left: 15 }}>
-                                <svg className="h-8 w-8 text-white mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M10 2C5.4 2 2 5.4 2 10s3.4 8 8 8 8-3.4 8-8-3.4-8-8-8zm0 14.5c-3.6 0-6.5-2.9-6.5-6.5S6.4 3.5 10 3.5 16.5 6.4 16.5 10 13.6 16.5 10 16.5z" clipRule="evenodd" />
-                                    <path fillRule="evenodd" d="M10 11.1c-1.5 0-2.8-.8-3.5-2.1l-.7 1.2c.9 1.4 2.4 2.4 4.2 2.4 2.8 0 5-2.2 5-5s-2.2-5-5-5c-1.6 0-3 .7-4 1.8V5H5v.5h1.1V7h1.3V5H8.3v-.8C9 3.6 9.8 3 10.7 3c.5 0 1 .2 1.5.5l-.9 1.1c-.4-.3-.8-.6-1.3-.6-1.1 0-2 .9-2 2s.9 2 2 2c.4 0 .8-.1 1.2-.3l.8 1.1c-.6.4-1.3.7-2 .7zm-.6 1.9c-.5 0-1-.1-1.5-.3l-.8-1.1c.7-.3 1.4-.5 2.3-.5 1.6 0 3.2.8 4 2.1l.7-1.2c-1.1-1.6-2.9-2.5-5-2.5-2.8 0-5 2.2-5 5s2.2 5 5 5c2.1 0 3.9-1 5-2.5l-.7-1.2c-.8 1.4-2.4 2.2-4 2.2z" clipRule="evenodd" />
-                                </svg>
-                                <h1 className="text-white text-lg font-bold">Sync</h1>
+                                <h1 className="text-white text-xl great-vibes">Sync</h1>
                             </div>
 
                             <div className="hidden md:flex flex-grow items-center" style={{ position: 'absolute', right: 20 }}>
@@ -226,25 +222,35 @@ function UserProfile() {
                                 </a>
                                 <div className="flex items-center">
                                     <div className="relative">
-                                        <button onClick={toggleDropdown} className="flex items-center text-gray-300 hover:text-white focus:outline-none">
+                                        <button onClick={toggleDropdown} className="flex items-center text-gray-300 hover:text-green-500 focus:outline-none">
                                             <img src={"http://localhost/api/profPic/" + userImage} className="rounded-full" alt="" style={{ width: '35px', height: '35px' }} />
-                                            <span className="mr-2 ml-1 text-lg">{userFirstname}</span>
+                                            {/* <span className={`mr-2 ml-1 text-lg ${isNameHighlighted ? 'text-green-500' : ''}`}>{userFirstname}</span> */}
                                             <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M10 12.586l3.707-3.707a1 1 0 011.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 12.586z" clipRule="evenodd" />
                                             </svg>
                                         </button>
+
                                         {isDropdownOpen && (
-                                            <div ref={dropdownRef} className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-center right-0">
-                                                <div className="flex items-center cursor-pointer mr-5 mt-3 text-gray-300 hover:text-blue-500" onClick={handleShowModal}>
+                                            <div ref={dropdownRef} className="absolute top-[55px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-start right-0 w-60">
+                                                <a href="/sync/Profile" className="flex justify-start items-start cursor-pointer no-underline mt-3">
+                                                    <img src={"http://localhost/api/profPic/" + userImage} className="rounded-full ml-1" alt="" style={{ width: '35px', height: '35px' }} />
+                                                    <p className="text-white ml-2 mt-1">
+                                                        <span className="hover:text-blue-400 ">{usersFirstname} {userLastname}</span>
+                                                    </p>
+                                                </a>
+                                                <hr style={{ width: '100%', borderTop: '1px solid #ccc', margin: '-2px 0', }} />
+
+                                                <div className="flex items-center cursor-pointer mr-5 mt-4 text-gray-300 hover:text-blue-500" onClick={handleShowModal}>
                                                     <FontAwesomeIcon icon={faUser} size='xl' className="ml-2 hover:text-blue-500" />
                                                     <span className="mr-1 ml-4">Personal&nbsp;Details</span>
                                                 </div>
-                                                <div className="flex items-center cursor-pointer mt-3 mr-2 mb-3 text-gray-300 hover:text-red-500" onClick={handleLogout}>
-                                                    <FontAwesomeIcon icon={faSignOutAlt} size='xl' className=" ml-0 hover:text-red-500" />
+                                                <div className="flex items-center cursor-pointer mt-3 mr-5 mb-3 text-gray-300 hover:text-red-500" onClick={handleLogout}>
+                                                    <FontAwesomeIcon icon={faSignOutAlt} size='xl' className=" ml-2 hover:text-red-500" />
                                                     <span className="ml-3 mr-16">Logout</span>
                                                 </div>
                                             </div>
                                         )}
+
                                     </div>
 
                                 </div>

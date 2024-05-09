@@ -245,6 +245,11 @@ const UserPost = ({ item, currentUse, comment }) => {
 
     const handleEditComment = async (commentId) => {
         try {
+            if (!editedComment.trim()) {
+                toast.error("Comment cannot be empty");
+                return;
+            }
+
             const jsonData = {
                 comment_id: commentId,
                 updatedComment: editedComment
@@ -257,16 +262,15 @@ const UserPost = ({ item, currentUse, comment }) => {
             const response = await axios.post('http://localhost/api/user.php', formData);
             console.log('Comment edited successfully:', response.data);
 
-
             setEditingCommentId(null);
             setEditedComment('');
-
 
             fetchComments();
         } catch (error) {
             console.error('Error editing comment:', error);
         }
     };
+
 
     const deleteComment = async (commentId) => {
         try {
@@ -314,7 +318,9 @@ const UserPost = ({ item, currentUse, comment }) => {
 
                 if (res.data === 1) {
                     console.log('Post deleted successfully:', res);
+                    toast.success("Deleted Successful");
                     window.location.reload();
+
                 } else {
                     console.error('Error deleting post:', res.message);
                 }
