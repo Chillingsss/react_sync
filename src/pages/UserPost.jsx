@@ -532,9 +532,13 @@ const UserPost = ({ item, currentUse, comment }) => {
                                 <img src={"http://localhost/api/profPic/" + item.prof_pic} className="rounded-full" alt="" style={{ width: '45px', height: '45px' }} />
                             </a>
                             <div style={{ marginLeft: '10px' }}>
-                                <a href="#" onClick={() => openUserProfile(item.userID)} className="no-underline text-gray-300">
+                                <a href="#" onClick={() => openUserProfile(item.userID)} className="no-underline text-gray-300 relative group">
                                     <p style={{ fontSize: "17px", marginBottom: '5px' }}>{item.firstname}</p>
+                                    <div className="h-0.5 bg-blue-500 absolute bottom-0 left-0 w-full transform scale-x-0 transition-transform origin-left group-hover:scale-x-100"></div>
                                 </a>
+
+
+
                                 <p className="text-right text-gray-500 text-xs ">{item.upload_date}</p>
                             </div>
                         </div>
@@ -644,7 +648,7 @@ const UserPost = ({ item, currentUse, comment }) => {
 
 
 
-            <Modal show={showCommentModal} onHide={handleCloseCommentModal}>
+            <Modal show={showCommentModal} onHide={handleCloseCommentModal} dialogClassName="w-20/20 md:w-3/4 lg:w-2/3 xl:w-1/2">
                 <Modal.Body className="bg-[#242526] text-white">
                     <div className="mb-4">
 

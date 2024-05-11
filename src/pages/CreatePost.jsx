@@ -64,7 +64,7 @@ const CreatePost = () => {
 
     return (
         <>
-            <div className="flex justify-center mt-40">
+            <div className="flex justify-center mt-32">
                 <Button onClick={handleShow} className="bg-transparent border border-gray-600 text-gray-300" style={{ color: '#959697' }}>
                     What's on your mind, {firstName}?
                 </Button>
