@@ -196,15 +196,23 @@ function Dashboard() {
 
 
     const toggleDropdown = () => {
-        setIsDropdownOpen(!isDropdownOpen);
-        setIsNameHighlighted(!isNameHighlighted);
+        setIsDropdownOpen(prevState => !prevState);
+        // setIsNameHighlighted(!isNameHighlighted);
+        // If isDropdownOpen is already true, set it to false
+        if (isDropdownOpen) {
+            setIsDropdownOpen(false);
+        }
     };
+
 
     const handleProfilePictureChange = (e) => {
         const file = e.target.files[0];
         setUpdatedProfilePicture(file);
     };
 
+    const handleReloadPage = () => {
+        window.location.reload();
+    }
 
     return (
         <>
@@ -214,7 +222,8 @@ function Dashboard() {
                         <div className="flex items-center mt-2">
 
                             <div className="flex items-center" style={{ position: 'absolute', left: 15 }}>
-                                <h1 className="text-white pacifico">Sync</h1>
+                                <h1 className="text-white font-dancing-script mt-1 cursor-pointer"
+                                    onClick={handleReloadPage}>S y n c</h1>
                                 {/* <img src="var/www/html/crud/sync.png" alt="Sync Logo" /> */}
                             </div>
 
@@ -243,7 +252,7 @@ function Dashboard() {
                                         </button>
 
                                         {isDropdownOpen && (
-                                            <div ref={dropdownRef} className="absolute top-[49px] bg-slate-800 shadow-md rounded-md p-2 flex flex-col items-start right-0 w-60">
+                                            <div ref={dropdownRef} className="absolute top-[49px] bg-slate-900 shadow-md rounded-md p-2 flex flex-col items-start right-0 w-60">
                                                 <a href="/sync/Profile" className="flex justify-start items-start cursor-pointer no-underline mt-3">
                                                     <img src={"http://localhost/api/profPic/" + userImage} className="rounded-full ml-1" alt="" style={{ width: '35px', height: '35px' }} />
                                                     <p className="text-white ml-2 mt-1">

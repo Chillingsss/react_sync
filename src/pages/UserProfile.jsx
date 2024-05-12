@@ -202,11 +202,12 @@ function UserProfile() {
     return (
         <>
             <div className='h-screen'>
-                <nav className="bg-[#242526] shadow-md position-fixed z-10 w-full h-20">
+                <nav className="bg-[#242526] shadow-md position-fixed z-10 w-full h-16">
                     <div className="container mx-auto px-6 py-4">
-                        <div className="flex items-center mt-3">
-                            <div className="flex items-start" style={{ position: 'absolute', left: 15 }}>
-                                <h1 className="text-white text-xl great-vibes">Sync</h1>
+                        <div className="flex items-center mt-2">
+                            <div className="flex items-center" style={{ position: 'absolute', left: 15 }}>
+                                <h1 className="text-white font-dancing-script mt-1 cursor-pointer" onClick={() => navigateTo('/Dashboard')}>S y n c</h1>
+                                {/* <img src="var/www/html/crud/sync.png" alt="Sync Logo" /> */}
                             </div>
 
                             <div className="hidden md:flex flex-grow items-center" style={{ position: 'absolute', right: 20 }}>
@@ -311,9 +312,11 @@ function UserProfile() {
 
                 <div className="position-fixed top-0 left-0">
                     <a href="/sync/Profile" className="flex justify-start items-start cursor-pointer no-underline">
-                        <img src={"http://localhost/api/profPic/" + UserProfPic} className="rounded-full mt-28 ml-4" alt="" style={{ width: '35px', height: '35px' }} />
-                        <p className="text-white mt-28 ml-2">
+                        <img src={"http://localhost/api/profPic/" + UserProfPic} className="rounded-full mt-24 ml-4" alt="" style={{ width: '35px', height: '35px' }} />
+                        <p className="text-white mt-24 ml-2">
                             <span className="hover:text-blue-400" style={{ color: dashboardActive ? '#ffffff' : '#3084D1' }}>{UserFirstname} {UserLastname}</span>
+                            <div className="h-0.5 bg-blue-500 absolute bottom-0 left-0 w-full transform scale-x-0 transition-transform origin-left group-hover:scale-x-100"></div>
+
                         </p>
                     </a>
                 </div>
