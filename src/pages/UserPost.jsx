@@ -17,6 +17,7 @@ const UserPost = ({ item, currentUse, comment }) => {
 
     const [likes, setLikes] = useState(0);
     const [count_Comment, setCommentCount] = useState(0);
+    const [showCommenterDetails, setShowCommenterDetails] = useState(false);
 
     const [likers, setLikers] = useState([]);
     const [isHovered, setIsHovered] = useState(false);
@@ -212,15 +213,25 @@ const UserPost = ({ item, currentUse, comment }) => {
             formData.append("json", JSON.stringify(jsonData));
             formData.append("operation", "countComment");
 
-            var res = await axios.post(url, formData);
+            const res = await axios.post(url, formData);
 
-            setCommentCount(res.data);
+            const modifiedComments = res.data.comments.map(comment => ({
+                ...comment,
+                commenterDetails: {
+                    prof_pics: comment.prof_pics.split(','),
+                    firstnames: comment.firstnames.split(','),
+                    lastnames: comment.lastnames.split(',')
+                }
+            }));
 
+            setComments(modifiedComments);
+            setCommentCount(res.data.comment_count);
 
         } catch (error) {
-
+            console.error("Error fetching comments", error);
         }
     };
+
 
 
     const [updatedComment, setUpdatedComment] = useState('');
@@ -535,6 +546,8 @@ const UserPost = ({ item, currentUse, comment }) => {
     };
 
 
+
+
     const fetchLikes = useCallback(async () => {
         try {
             const url = localStorage.getItem("url") + "user.php";
@@ -559,12 +572,15 @@ const UserPost = ({ item, currentUse, comment }) => {
 
             if (data.length > 0) {
                 setLikes(data[0].likes);
-                const likersData = data[0].likers_firstnames.split(',').map((firstname, index) => ({
+
+                // Process likers data
+                let likersData = data[0].likers_firstnames.split(',').map((firstname, index) => ({
                     firstname: firstname,
                     lastname: data[0].likers_lastnames.split(',')[index],
                     profilePic: data[0].likers_profile_pics.split(',')[index],
                     userID: data[0].likers_ids.split(',')[index]
                 }));
+
                 setLikers(likersData);
             } else {
                 setLikes(0);
@@ -576,9 +592,17 @@ const UserPost = ({ item, currentUse, comment }) => {
         }
     }, [item.id]);
 
+
     useEffect(() => {
         fetchLikes();
     }, [fetchLikes]);
+
+    const handleClickLikes = () => {
+        setShowLikersModal(true);
+    };
+
+
+
 
 
 
@@ -676,14 +700,14 @@ const UserPost = ({ item, currentUse, comment }) => {
                             className='text-start inline-block cursor-pointer'
                             onMouseEnter={() => setIsHovered(true)}
                             onMouseLeave={() => setIsHovered(false)}
-                            onClick={() => setShowLikersModal(true)} // Open the modal on click
+                            onClick={() => handleClickLikes()}
                         >
                             <FontAwesomeIcon icon={faGrinTears} className="mr-1" />
                             {likes}
                         </p>
                         {isHovered && (
                             <div className="absolute bg-slate-600 shadow-md p-2 rounded mt-6 z-10 w-48">
-                                {likers.map((liker, index) => (
+                                {likers.slice(0, 5).map((liker, index) => (
                                     <div key={index} className="flex items-center ">
                                         <img
                                             src={`http://localhost/api/profPic/${liker.profilePic}`}
@@ -694,13 +718,58 @@ const UserPost = ({ item, currentUse, comment }) => {
                                             <span>{liker.firstname} {liker.lastname}</span>
                                         </p>
                                     </div>
-
                                 ))}
+                                {likers.length > 5 && (
+                                    <div className="flex items-center">
+                                        <p className="text-sm text-white cursor-pointer mt-3">
+                                            <span>and {likers.length - 5} more</span>
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         )}
-                        <p className='text-end'>
-                            {item.countComment} <FontAwesomeIcon icon={faComment} className="mr-1" />
-                        </p>
+
+
+
+                        <div className='text-end'>
+                            <span
+                                className="text-gray-500 cursor-pointer"
+                                onMouseEnter={() => {
+                                    fetchComments();
+                                    setShowCommenterDetails(true);
+                                }}
+                                onMouseLeave={() => setShowCommenterDetails(false)}
+                                onClick={() => handleShowCommentModal(item.id)}
+                            >
+                                {item.countComment} {item.countComment === 1 ? 'comment' : 'comments'}
+                            </span>
+
+                            {showCommenterDetails && (
+                                <div
+                                    className="absolute bg-slate-600 shadow-md p-2 rounded mt-2 z-10 w-48"
+                                    onMouseEnter={() => setShowCommenterDetails(true)}
+                                    onMouseLeave={() => setShowCommenterDetails(false)}
+                                >
+                                    {comments.slice(0, 5).map((comment, index) => (
+                                        <div key={index} className="flex items-center mb-2">
+                                            <img
+                                                src={`http://localhost/api/profPic/${comment.prof_pic}`}
+                                                alt={`${comment.firstname} ${comment.lastname}`}
+                                                className="w-6 h-6 rounded-full mr-2"
+                                            />
+                                            <p className="text-sm text-white cursor-pointer mt-3"> {comment.firstname} {comment.lastname}</p>
+                                        </div>
+                                    ))}
+                                    {comments.length > 5 && (
+                                        <p className="text-sm text-white cursor-pointer mt-3 text-start">and {comments.length - 5} more</p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+
+
+
                     </div>
 
                     <hr style={{ width: '100%', borderTop: '1px solid #ccc', margin: '-2px 0', }} />
@@ -868,7 +937,7 @@ const UserPost = ({ item, currentUse, comment }) => {
                                         <div style={{ display: 'flex' }}>
                                             <img src={"http://localhost/api/profPic/" + comment.prof_pic} className="rounded-full mr-2" alt="" style={{ width: '45px', height: '45px' }} /> {/* Profile picture */}
                                             <div >
-                                                <p style={{ fontSize: "17px", marginBottom: '5px' }} >{comment.firstname}</p>
+                                                <p style={{ fontSize: "17px", marginBottom: '5px' }} >{comment.firstname} {comment.lastname}</p>
 
                                                 <p className="text-right text-gray-500 text-xs">{comment.comment_date_created}</p>
                                             </div>
