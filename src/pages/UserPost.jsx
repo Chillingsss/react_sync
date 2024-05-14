@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { Container, Card, Modal, Button, Image, Row, Form } from 'react-bootstrap';
-import { faTrash, faEdit, faPaperPlane, faThumbsUp, faComment, faArrowUp, faCheck, faTimes, faBan } from '@fortawesome/free-solid-svg-icons';
-import { faThumbsUp as farThumbsUp, faComment as farComment, faPaperPlane as farPaperPlane, faEdit as farEdit } from '@fortawesome/free-regular-svg-icons';
+import { faTrash, faEdit, faPaperPlane, faThumbsUp, faComment, faArrowUp, faCheck, faTimes, faBan, faLaugh, faLaughWink, faLaughSquint, faGrinSquintTears, faGrinTears } from '@fortawesome/free-solid-svg-icons';
+import { faThumbsUp as farThumbsUp, faComment as farComment, faPaperPlane as farPaperPlane, faEdit as farEdit, faGrinTears as farGrinTears } from '@fortawesome/free-regular-svg-icons';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faHome, faUser, faBell, faSignOutAlt, } from '@fortawesome/free-solid-svg-icons';
@@ -15,8 +15,12 @@ library.add(faHome, faUser, faBell, faSignOutAlt);
 
 const UserPost = ({ item, currentUse, comment }) => {
 
-    let [likes, setLikes] = useState(0);
+    const [likes, setLikes] = useState(0);
     const [count_Comment, setCommentCount] = useState(0);
+
+    const [likers, setLikers] = useState([]);
+    const [isHovered, setIsHovered] = useState(false);
+    const [showLikersModal, setShowLikersModal] = useState(false);
 
     const userFirstname = localStorage.getItem('Firstname');
     const userImage = localStorage.getItem('ProfilePic') || '';
@@ -93,29 +97,30 @@ const UserPost = ({ item, currentUse, comment }) => {
             const jsonData = {
                 userId: userId,
                 postId: item.id
-            }
+            };
 
             const formData = new FormData();
             formData.append("json", JSON.stringify(jsonData));
             formData.append("operation", "heartpost");
 
-            var res = await axios.post(url, formData);
+            const res = await axios.post(url, formData);
 
             if (res.data === -5) {
-                setLikes(parseInt(likes) - 1);
+                setLikes((prev) => prev - 1);
             } else if (res.data === 1) {
-                setLikes(parseInt(likes) + 1);
+                setLikes((prev) => prev + 1);
             } else {
-                toast.error("there was something wrong");
+                toast.error("There was something wrong");
                 console.log(res.data);
             }
 
-            setIsUserLiked(!isUserLiked)
+            setIsUserLiked(!isUserLiked);
+            fetchLikes(); // Refresh likers list
 
         } catch (error) {
             alert(error);
         }
-    }
+    };
 
 
     const handleSubmitComment = async (e) => {
@@ -435,14 +440,26 @@ const UserPost = ({ item, currentUse, comment }) => {
         setShowCommentModal(true);
     }
 
-    function openUserProfile(userID) {
-        console.log("asdasd" + userID);
+    function openUserProfile(userID, liker) {
+        console.log("Navigating to user profile with ID: " + userID);
         sessionStorage.setItem("idtopost", userID);
         sessionStorage.setItem("firstname", item.firstname);
         sessionStorage.setItem("lastname", item.lastname);
         sessionStorage.setItem("userProfile", item.prof_pic);
+
         window.location.href = `/sync/UserProfile?userId=${userID}`;
     }
+
+    function openUserLikeProfile(userID, liker) {
+        console.log("Navigating to user profile with ID: " + userID);
+        sessionStorage.setItem("idtopost", userID);
+        sessionStorage.setItem("firstname", liker.firstname);
+        sessionStorage.setItem("lastname", liker.lastname);
+        sessionStorage.setItem("userProfile", liker.profilePic);
+
+        window.location.href = `/sync/UserProfile?userId=${userID}`;
+    }
+
 
 
 
@@ -516,6 +533,52 @@ const UserPost = ({ item, currentUse, comment }) => {
     const handleCancelEditCaption = () => {
         setIsEditingCaptionId(null);
     };
+
+
+    const fetchLikes = useCallback(async () => {
+        try {
+            const url = localStorage.getItem("url") + "user.php";
+            const userId = localStorage.getItem("id");
+
+            const jsonData = {
+                userId: userId,
+                postId: item.id
+            };
+
+            const formData = new FormData();
+            formData.append("json", JSON.stringify(jsonData));
+            formData.append("operation", "getLikes");
+
+            const response = await axios.post(url, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            const data = response.data;
+
+            if (data.length > 0) {
+                setLikes(data[0].likes);
+                const likersData = data[0].likers_firstnames.split(',').map((firstname, index) => ({
+                    firstname: firstname,
+                    lastname: data[0].likers_lastnames.split(',')[index],
+                    profilePic: data[0].likers_profile_pics.split(',')[index],
+                    userID: data[0].likers_ids.split(',')[index]
+                }));
+                setLikers(likersData);
+            } else {
+                setLikes(0);
+                setLikers([]);
+            }
+
+        } catch (error) {
+            console.error("Error fetching likes", error);
+        }
+    }, [item.id]);
+
+    useEffect(() => {
+        fetchLikes();
+    }, [fetchLikes]);
 
 
 
@@ -609,10 +672,32 @@ const UserPost = ({ item, currentUse, comment }) => {
                     )}
 
                     <div className="flex justify-between  mt-3" style={{ fontSize: "14px" }}>
-                        <p className='text-start'>
-                            <FontAwesomeIcon icon={faThumbsUp} className="mr-1 text-blue-400" />
+                        <p
+                            className='text-start inline-block cursor-pointer'
+                            onMouseEnter={() => setIsHovered(true)}
+                            onMouseLeave={() => setIsHovered(false)}
+                            onClick={() => setShowLikersModal(true)} // Open the modal on click
+                        >
+                            <FontAwesomeIcon icon={faGrinTears} className="mr-1" />
                             {likes}
                         </p>
+                        {isHovered && (
+                            <div className="absolute bg-slate-600 shadow-md p-2 rounded mt-6 z-10 w-48">
+                                {likers.map((liker, index) => (
+                                    <div key={index} className="flex items-center ">
+                                        <img
+                                            src={`http://localhost/api/profPic/${liker.profilePic}`}
+                                            alt={`${liker.firstname} ${liker.lastname}`}
+                                            className="w-6 h-6 rounded-full mr-1"
+                                        />
+                                        <p className="text-sm text-white cursor-pointer mt-3" onClick={() => openUserProfile(liker.userID)}>
+                                            <span>{liker.firstname} {liker.lastname}</span>
+                                        </p>
+                                    </div>
+
+                                ))}
+                            </div>
+                        )}
                         <p className='text-end'>
                             {item.countComment} <FontAwesomeIcon icon={faComment} className="mr-1" />
                         </p>
@@ -621,15 +706,15 @@ const UserPost = ({ item, currentUse, comment }) => {
                     <hr style={{ width: '100%', borderTop: '1px solid #ccc', margin: '-2px 0', }} />
 
                     <div className='flex items-center mt-3'>
-                        <div className="cursor-pointer text-gray-300 hover:text-blue-500 flex items-center">
+                        <div className="cursor-pointer text-gray-300 hover:text-yellow-300 flex items-center">
                             <FontAwesomeIcon
-                                className={isUserLiked ? 'text-blue-500' : ''}
-                                icon={isUserLiked ? faThumbsUp : farThumbsUp}
+                                className={isUserLiked ? 'text-yellow-300' : ''}
+                                icon={isUserLiked ? faGrinTears : farGrinTears}
                                 style={{ width: '30px', height: '30px', cursor: 'pointer', marginLeft: '10px' }}
                                 onClick={handleLikePost}
                             />
-                            <span style={{ lineHeight: '30px', marginLeft: '5px', color: isUserLiked ? 'blue' : 'inherit' }} onClick={handleLikePost}>
-                                {isUserLiked ? 'Liked' : 'Like'}
+                            <span style={{ lineHeight: '30px', marginLeft: '5px', color: isUserLiked ? 'yellow' : 'inherit' }} onClick={handleLikePost}>
+                                {isUserLiked ? 'haha' : 'haha'}
                             </span>
                         </div>
                         <div className="ml-12 sm:ml-36 flex items-center cursor-pointer text-gray-300 hover:text-green-500">
@@ -643,6 +728,35 @@ const UserPost = ({ item, currentUse, comment }) => {
                     </div>
                 </Card.Body>
             </Card>
+
+
+            <Modal show={showLikersModal} onHide={() => setShowLikersModal(false)}>
+                <Modal.Header closeButton className='bg-[#242526] text-white'>
+                    <Modal.Title>Likers</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className='bg-[#242526] text-white'>
+                    {likers.map((liker, index) => (
+                        <div key={index} className="flex items-center mt-2">
+                            <img
+                                src={`http://localhost/api/profPic/${liker.profilePic}`}
+                                alt={`${liker.firstname} ${liker.lastname}`}
+                                className="w-6 h-6 rounded-full mr-2"
+                            />
+                            <p
+                                className="text-sm text-white cursor-pointer mt-3"
+                                onClick={() => openUserLikeProfile(liker.userID, liker)}
+                            >
+                                {liker.firstname} {liker.lastname}
+                            </p>
+                        </div>
+                    ))}
+                </Modal.Body>
+                <Modal.Footer style={{ backgroundColor: '#242526' }}>
+                    <Button variant="secondary" onClick={() => setShowLikersModal(false)}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
 
 
 
@@ -668,10 +782,21 @@ const UserPost = ({ item, currentUse, comment }) => {
 
 
                     <div className="flex justify-between text-gray-400" style={{ fontSize: "14px" }}>
-                        <p className='text-start'>
+                        <p
+                            className='text-start'
+                            onMouseEnter={() => setIsHovered(true)}
+                            onMouseLeave={() => setIsHovered(false)}
+                        >
                             <FontAwesomeIcon icon={faThumbsUp} className="mr-1" />
                             {likes}
                         </p>
+                        {isHovered && (
+                            <div className="absolute bg-white shadow-md p-2 rounded">
+                                {likers.map((liker, index) => (
+                                    <p key={index}>{liker}</p>
+                                ))}
+                            </div>
+                        )}
                         <p className='text-end'>
                             {comments.length} <FontAwesomeIcon icon={faComment} className="mr-1" />
                         </p>
