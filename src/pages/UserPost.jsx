@@ -795,6 +795,7 @@ const UserPost = ({ item, currentUse, comment }) => {
                             <span className="ml-2" style={{ lineHeight: '30px', cursor: 'pointer' }} onClick={() => handleShowCommentModal(item.id)}>Comment</span>
                         </div>
                     </div>
+
                 </Card.Body>
             </Card>
 
@@ -939,7 +940,7 @@ const UserPost = ({ item, currentUse, comment }) => {
                                             <div >
                                                 <p style={{ fontSize: "17px", marginBottom: '5px' }} >{comment.firstname} {comment.lastname}</p>
 
-                                                <p className="text-right text-gray-500 text-xs">{comment.comment_date_created}</p>
+                                                <p className="text-left text-gray-500 text-xs">{comment.comment_date_created}</p>
                                             </div>
                                         </div>
 
