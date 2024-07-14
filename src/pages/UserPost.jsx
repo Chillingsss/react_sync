@@ -16,10 +16,13 @@ library.add(faHome, faUser, faBell, faSignOutAlt);
 const UserPost = ({ item, currentUse, comment }) => {
 
     const [likes, setLikes] = useState(0);
+
     const [count_Comment, setCommentCount] = useState(0);
     const [showCommenterDetails, setShowCommenterDetails] = useState(false);
 
     const [likers, setLikers] = useState([]);
+    console.log(likers);
+
     const [isHovered, setIsHovered] = useState(false);
     const [showLikersModal, setShowLikersModal] = useState(false);
 
@@ -31,6 +34,7 @@ const UserPost = ({ item, currentUse, comment }) => {
     const [showCommentModal, setShowCommentModal] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [comments, setComments] = useState([]);
+
     const [showBanIcon, setShowBanIcon] = useState(false);
 
     const [showEditModal, setShowEditModal] = useState(false);
@@ -156,81 +160,157 @@ const UserPost = ({ item, currentUse, comment }) => {
 
 
 
-            fetchComments();
-
-            countComments();
-
-            setNewComment('');
         } catch (error) {
             console.error('Error adding comment:', error);
         }
+        finally {
+            await fetchComments();
+
+            // countComments();
+
+            setNewComment('');
+        }
     };
 
-    const fetchComments = () => {
-        const postId = sessionStorage.getItem("selectedPostId");
+    const fetchComments = async () => {
+        try {
+            const postId = sessionStorage.getItem("selectedPostId");
 
-        if (!postId) {
-            console.error('No post selected');
-            return;
-        }
+            if (!postId) {
+                console.error('No post selected');
+                return;
+            }
 
-        const jsonData = {
-            uploadId: postId,
-        };
+            const jsonData = {
+                uploadId: postId,
+            };
 
-        const formData = new FormData();
-        formData.append("json", JSON.stringify(jsonData));
-        formData.append("operation", "fetchComment");
+            const formData = new FormData();
+            formData.append("json", JSON.stringify(jsonData));
+            formData.append("operation", "fetchComment");
 
-        axios.post(`http://localhost/api/user.php`, formData)
-            .then(response => {
-                console.log("natawag na", response);
+            var res = await axios.post(`http://localhost/api/user.php`, formData);
 
-                const commentList = response.data;
+            console.log("sd", res)
 
-
+            if (res.data !== 0) {
+                console.log("Comment niya to", res.data);
+                const commentList = res.data;
 
                 setComments(commentList);
                 localStorage.setItem(`comments_${postId}`, JSON.stringify(commentList));
 
+                // setShowCommenterDetails(true);
 
-                setShowCommentModal(true);
-            })
-            .catch(error => {
-                console.error('Error fetching comments:', error);
-            });
+            } else {
+                console.error('Error fetching comments:', res.data.message);
+            }
+
+            // axios.post(`http://localhost/api/user.php`, formData)
+            //     .then(response => {
+            //         console.log("natawag na", response);
+
+
+            //     })
+            //     .catch(error => {
+            //     });
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+
+        }
+
     };
 
-    const countComments = async () => {
+    const fetchCountComments = async () => {
         try {
-            const url = localStorage.getItem("url") + "user.php";
+            // const postId = sessionStorage.getItem("selectedPostId");
+
+            // if (!postId) {
+            //     console.error('No post selected');
+            //     return;
+            // }
 
             const jsonData = {
-                uploadId: item.id
-            }
+                uploadId: postId,
+            };
 
             const formData = new FormData();
             formData.append("json", JSON.stringify(jsonData));
-            formData.append("operation", "countComment");
+            formData.append("operation", "fetchComment");
 
-            const res = await axios.post(url, formData);
+            var res = await axios.post(`http://localhost/api/user.php`, formData);
 
-            const modifiedComments = res.data.comments.map(comment => ({
-                ...comment,
-                commenterDetails: {
-                    prof_pics: comment.prof_pics.split(','),
-                    firstnames: comment.firstnames.split(','),
-                    lastnames: comment.lastnames.split(',')
-                }
-            }));
+            console.log("sd", res)
 
-            setComments(modifiedComments);
-            setCommentCount(res.data.comment_count);
+            if (res.data !== 0) {
+                console.log("Comment niya to", res.data);
+                const commentList = res.data;
 
+                setComments(commentList);
+                localStorage.setItem(`comments_${postId}`, JSON.stringify(commentList));
+
+                // setShowCommenterDetails(true);
+
+            } else {
+                console.error('Error fetching comments:', res.data.message);
+            }
+
+            // axios.post(`http://localhost/api/user.php`, formData)
+            //     .then(response => {
+            //         console.log("natawag na", response);
+
+
+            //     })
+            //     .catch(error => {
+            //     });
         } catch (error) {
-            console.error("Error fetching comments", error);
+            console.error('Error fetching comments:', error);
+
         }
+
     };
+
+    // const countComments = async () => {
+    //     try {
+    //         const url = localStorage.getItem("url") + "user.php";
+
+    //         const jsonData = {
+    //             uploadId: item.id
+    //         };
+
+
+    //         const formData = new FormData();
+    //         formData.append("json", JSON.stringify(jsonData));
+    //         formData.append("operation", "countComment");
+
+    //         const res = await axios.post(url, formData);
+
+    //         if (res.data && res.data.comments) {
+    //             const modifiedComments = res.data.comments.map(comment => ({
+    //                 ...comment,
+    //                 commenterDetails: {
+    //                     prof_pic: comment.prof_pic.split(','),
+    //                     firstname: comment.firstname.split(',')
+    //                 }
+    //             }));
+
+    //             setComments(modifiedComments);
+    //             setCommentCount(res.data.comment_count);
+
+    //             // fetchCountComments(item.id);
+
+    //         } else {
+    //             console.error('Unexpected response structure:', res.data);
+    //         }
+    //     } catch (error) {
+    //         console.error("Error fetching comments:", error);
+    //     }
+    // };
+
+    // useEffect(() => {
+    //     countComments();
+    // }, []);
+
 
 
 
@@ -483,13 +563,16 @@ const UserPost = ({ item, currentUse, comment }) => {
 
 
         const postId = item.id;
+        fetchComments(postId);
+        // const storedComments = localStorage.getItem(`comments_${postId}`);
+        // if (storedComments) {
+        //     console.log("Fetching pikas mo to", postId);
 
-        const storedComments = localStorage.getItem(`comments_${postId}`);
-        if (storedComments) {
-            setComments(JSON.parse(storedComments));
-        } else {
-            fetchComments(postId);
-        }
+        //     setComments(JSON.parse(storedComments));
+        // } else {
+        //     console.log("Fetching comments mo to", postId);
+        //     fetchComments(postId);
+        // }
 
         function handleClickOutside(event) {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -570,6 +653,7 @@ const UserPost = ({ item, currentUse, comment }) => {
 
             const data = response.data;
 
+
             if (data.length > 0) {
                 setLikes(data[0].likes);
 
@@ -603,7 +687,10 @@ const UserPost = ({ item, currentUse, comment }) => {
 
 
 
+    useEffect(() => {
+        fetchComments();
 
+    }, [fetchComments]);
 
 
 
@@ -730,12 +817,12 @@ const UserPost = ({ item, currentUse, comment }) => {
                         )}
 
 
-
+                        {/* comment count hover */}
                         <div className='text-end'>
                             <span
                                 className="text-gray-500 cursor-pointer"
                                 onMouseEnter={() => {
-                                    fetchComments();
+                                    // countComments();
                                     setShowCommenterDetails(true);
                                 }}
                                 onMouseLeave={() => setShowCommenterDetails(false)}
@@ -750,18 +837,26 @@ const UserPost = ({ item, currentUse, comment }) => {
                                     onMouseEnter={() => setShowCommenterDetails(true)}
                                     onMouseLeave={() => setShowCommenterDetails(false)}
                                 >
-                                    {comments.slice(0, 5).map((comment, index) => (
-                                        <div key={index} className="flex items-center mb-2">
-                                            <img
-                                                src={`http://localhost/api/profPic/${comment.prof_pic}`}
-                                                alt={`${comment.firstname} ${comment.lastname}`}
-                                                className="w-6 h-6 rounded-full mr-2"
-                                            />
-                                            <p className="text-sm text-white cursor-pointer mt-3"> {comment.firstname} {comment.lastname}</p>
-                                        </div>
-                                    ))}
-                                    {comments.length > 5 && (
-                                        <p className="text-sm text-white cursor-pointer mt-3 text-start">and {comments.length - 5} more</p>
+                                    {comments && (
+                                        <>
+                                            {
+                                                comments.slice(0, 5).map((comment, index) => {
+                                                    return (
+                                                        <div key={index} className="flex items-center mb-2">
+                                                            <img
+                                                                src={`http://localhost/api/profPic/${comment.prof_pic}`}
+                                                                alt={`${comment.firstname} ${comment.lastname}`}
+                                                                className="w-6 h-6 rounded-full mr-2"
+                                                            />
+                                                            <p className="text-sm text-white cursor-pointer mt-3"> {comment.firstname} {comment.lastname}</p>
+                                                        </div>
+                                                    )
+                                                })
+                                            }
+                                            {comments.length > 5 && (
+                                                <p className="text-sm text-white cursor-pointer mt-3 text-start">and {comments.length - 5} more</p>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                             )}
@@ -861,10 +956,26 @@ const UserPost = ({ item, currentUse, comment }) => {
                             {likes}
                         </p>
                         {isHovered && (
-                            <div className="absolute bg-white shadow-md p-2 rounded">
-                                {likers.map((liker, index) => (
-                                    <p key={index}>{liker}</p>
+                            <div className="absolute bg-slate-600 shadow-md p-2 rounded mt-6 z-10 w-48">
+                                {likers.slice(0, 5).map((liker, index) => (
+                                    <div key={index} className="flex items-center ">
+                                        <img
+                                            src={`http://localhost/api/profPic/${liker.profilePic}`}
+                                            alt={`${liker.firstname} ${liker.lastname}`}
+                                            className="w-6 h-6 rounded-full mr-1"
+                                        />
+                                        <p className="text-sm text-white cursor-pointer mt-3" onClick={() => openUserProfile(liker.userID)}>
+                                            <span>{liker.firstname} {liker.lastname}</span>
+                                        </p>
+                                    </div>
                                 ))}
+                                {likers.length > 5 && (
+                                    <div className="flex items-center">
+                                        <p className="text-sm text-white cursor-pointer mt-3">
+                                            <span>and {likers.length - 5} more</span>
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         )}
                         <p className='text-end'>
@@ -936,9 +1047,9 @@ const UserPost = ({ item, currentUse, comment }) => {
                                 ) : (
                                     <>
                                         <div style={{ display: 'flex' }}>
-                                            <img src={"http://localhost/api/profPic/" + comment.prof_pic} className="rounded-full mr-2" alt="" style={{ width: '45px', height: '45px' }} /> {/* Profile picture */}
+                                            <img src={"http://localhost/api/profPic/" + comment.prof_pic} className="rounded-full mr-2" alt="" style={{ width: '45px', height: '45px' }} />
                                             <div >
-                                                <p style={{ fontSize: "17px", marginBottom: '5px' }} >{comment.firstname} {comment.lastname}</p>
+                                                <p style={{ fontSize: "17px", marginBottom: '5px' }} >{comment.firstname}</p>
 
                                                 <p className="text-left text-gray-500 text-xs">{comment.comment_date_created}</p>
                                             </div>
