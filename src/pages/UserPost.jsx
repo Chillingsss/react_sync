@@ -34,6 +34,9 @@ const UserPost = ({ item, currentUse, comment }) => {
     const [showCommentModal, setShowCommentModal] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [comments, setComments] = useState([]);
+    const [commentss, setCommentss] = useState([]);
+    const [selectedPostId, setSelectedPostId] = useState(null);
+
 
     const [showBanIcon, setShowBanIcon] = useState(false);
 
@@ -223,12 +226,13 @@ const UserPost = ({ item, currentUse, comment }) => {
 
     const fetchCountComments = async () => {
         try {
-            // const postId = sessionStorage.getItem("selectedPostId");
+            console.log("fetching count comments");
+            const postId = sessionStorage.getItem("selectedPostId");
 
-            // if (!postId) {
-            //     console.error('No post selected');
-            //     return;
-            // }
+            if (!postId) {
+                console.error('No post selected');
+                return;
+            }
 
             const jsonData = {
                 uploadId: postId,
@@ -238,78 +242,84 @@ const UserPost = ({ item, currentUse, comment }) => {
             formData.append("json", JSON.stringify(jsonData));
             formData.append("operation", "fetchComment");
 
-            var res = await axios.post(`http://localhost/api/user.php`, formData);
+            const res = await axios.post(`http://localhost/api/user.php`, formData);
 
-            console.log("sd", res)
+            console.log("response", res);
 
             if (res.data !== 0) {
-                console.log("Comment niya to", res.data);
+                console.log("Comments data", res.data);
                 const commentList = res.data;
 
                 setComments(commentList);
                 localStorage.setItem(`comments_${postId}`, JSON.stringify(commentList));
-
-                // setShowCommenterDetails(true);
-
             } else {
                 console.error('Error fetching comments:', res.data.message);
             }
-
-            // axios.post(`http://localhost/api/user.php`, formData)
-            //     .then(response => {
-            //         console.log("natawag na", response);
-
-
-            //     })
-            //     .catch(error => {
-            //     });
         } catch (error) {
             console.error('Error fetching comments:', error);
-
         }
-
     };
 
-    // const countComments = async () => {
-    //     try {
-    //         const url = localStorage.getItem("url") + "user.php";
-
-    //         const jsonData = {
-    //             uploadId: item.id
-    //         };
+    // useEffect(() => {
+    //     fetchCountComments();
+    // }, [fetchCountComments]);
 
 
-    //         const formData = new FormData();
-    //         formData.append("json", JSON.stringify(jsonData));
-    //         formData.append("operation", "countComment");
+    useEffect(() => {
+        const storedPostId = sessionStorage.getItem('selectedPostId');
+        if (storedPostId) {
+            setSelectedPostId(storedPostId);
+            fetchCountComments();
+        }
+    }, []);
 
-    //         const res = await axios.post(url, formData);
+    const handleMouseEnter = (postId) => {
+        setSelectedPostId(postId);
+        sessionStorage.setItem('selectedPostId', postId);
+        fetchCountComments();
+        setShowCommenterDetails(true);
+    };
 
-    //         if (res.data && res.data.comments) {
-    //             const modifiedComments = res.data.comments.map(comment => ({
-    //                 ...comment,
-    //                 commenterDetails: {
-    //                     prof_pic: comment.prof_pic.split(','),
-    //                     firstname: comment.firstname.split(',')
-    //                 }
-    //             }));
+    const countComments = async () => {
+        try {
+            const url = localStorage.getItem("url") + "user.php";
 
-    //             setComments(modifiedComments);
-    //             setCommentCount(res.data.comment_count);
+            const jsonData = {
+                uploadId: item.id
+            };
 
-    //             // fetchCountComments(item.id);
 
-    //         } else {
-    //             console.error('Unexpected response structure:', res.data);
-    //         }
-    //     } catch (error) {
-    //         console.error("Error fetching comments:", error);
-    //     }
-    // };
+            const formData = new FormData();
+            formData.append("json", JSON.stringify(jsonData));
+            formData.append("operation", "countComment");
+
+            const res = await axios.post(url, formData);
+
+            if (res.data && res.data.comments) {
+                const modifiedComments = res.data.comments.map(comment => ({
+                    ...comment,
+                    commenterDetails: {
+                        prof_pic: comment.prof_pic.split(','),
+                        firstname: comment.firstname.split(',')
+                    }
+                }));
+
+                setComments(modifiedComments);
+                setCommentCount(res.data.comment_count);
+
+                // fetchCountComments(item.id);
+
+            } else {
+                console.error('Unexpected response structure:', res.data);
+            }
+        } catch (error) {
+            console.error("Error fetching comments:", error);
+        }
+    };
 
     // useEffect(() => {
     //     countComments();
-    // }, []);
+    // }, [countComments]);
 
 
 
@@ -589,10 +599,10 @@ const UserPost = ({ item, currentUse, comment }) => {
     }, [isUserLike, item.likes, showCommentModal, dropdownRef]);
 
 
-    useEffect(() => {
+    // useEffect(() => {
 
 
-    }, [setCommentCount, item.count_Comment]);
+    // }, [setCommentCount, item.count_Comment]);
 
 
     const toggleDropdown = () => {
@@ -687,10 +697,7 @@ const UserPost = ({ item, currentUse, comment }) => {
 
 
 
-    useEffect(() => {
-        fetchComments();
 
-    }, [fetchComments]);
 
 
 
@@ -818,52 +825,45 @@ const UserPost = ({ item, currentUse, comment }) => {
 
 
                         {/* comment count hover */}
-                        <div className='text-end'>
+                        <div className='text-end' key={item.id}>
                             <span
                                 className="text-gray-500 cursor-pointer"
-                                onMouseEnter={() => {
-                                    // countComments();
-                                    setShowCommenterDetails(true);
-                                }}
+                                onMouseEnter={() => handleMouseEnter(item.id)}
                                 onMouseLeave={() => setShowCommenterDetails(false)}
-                                onClick={() => handleShowCommentModal(item.id)}
                             >
                                 {item.countComment} {item.countComment === 1 ? 'comment' : 'comments'}
                             </span>
 
-                            {showCommenterDetails && (
+                            {showCommenterDetails && selectedPostId === item.id && (
                                 <div
                                     className="absolute bg-slate-600 shadow-md p-2 rounded mt-2 z-10 w-48"
                                     onMouseEnter={() => setShowCommenterDetails(true)}
                                     onMouseLeave={() => setShowCommenterDetails(false)}
                                 >
-                                    {comments && (
+                                    {comments.length > 0 && (
                                         <>
-                                            {
-                                                comments.slice(0, 5).map((comment, index) => {
-                                                    return (
-                                                        <div key={index} className="flex items-center mb-2">
-                                                            <img
-                                                                src={`http://localhost/api/profPic/${comment.prof_pic}`}
-                                                                alt={`${comment.firstname} ${comment.lastname}`}
-                                                                className="w-6 h-6 rounded-full mr-2"
-                                                            />
-                                                            <p className="text-sm text-white cursor-pointer mt-3"> {comment.firstname} {comment.lastname}</p>
-                                                        </div>
-                                                    )
-                                                })
-                                            }
+                                            {comments.slice(0, 5).map((comment, index) => (
+                                                <div key={index} className="flex items-center mb-2">
+                                                    <img
+                                                        src={`http://localhost/api/profPic/${comment.prof_pic}`}
+                                                        alt={`${comment.firstname} ${comment.lastname}`}
+                                                        className="w-6 h-6 rounded-full mr-2"
+                                                    />
+                                                    <p className="text-sm text-white cursor-pointer mt-3">
+                                                        {comment.firstname} {comment.lastname}
+                                                    </p>
+                                                </div>
+                                            ))}
                                             {comments.length > 5 && (
-                                                <p className="text-sm text-white cursor-pointer mt-3 text-start">and {comments.length - 5} more</p>
+                                                <p className="text-sm text-white cursor-pointer mt-3 text-start">
+                                                    and {comments.length - 5} more
+                                                </p>
                                             )}
                                         </>
                                     )}
                                 </div>
                             )}
                         </div>
-
-
-
 
                     </div>
 
