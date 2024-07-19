@@ -374,6 +374,7 @@ function Dashboard() {
         try {
             const loggedInUserId = sessionStorage.getItem('id');
             const selectedUserId = sessionStorage.getItem("selectedUserId");
+            console.log(loggedInUserId, selectedUserId);
 
             if (!loggedInUserId || !selectedUserId) {
                 console.error('User IDs not available');
@@ -406,7 +407,7 @@ function Dashboard() {
 
     useEffect(() => {
         fetchMessages();
-    }, []);
+    }, [fetchMessages]);
 
 
 
@@ -662,26 +663,34 @@ function Dashboard() {
                     <div className={`fixed inset-0 z-50 overflow-y-auto ${isModalOpen ? 'block' : 'hidden'}`}>
                         <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                             <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-                                <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+                                <div className="absolute inset-0 bg-gray-800 opacity-75"></div>
                             </div>
 
                             <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                            <div className="inline-block align-bottom bg-[#242526] rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-10 sm:align-middle sm:max-w-xl sm:w-11/12" style={{ height: '80vh' }}>
                                 {/* Top section: Selected user profile */}
-                                <div className="bg-white px-4 py-5 sm:p-6">
-                                    <div className="flex items-center mb-4">
-                                        <div className="flex-shrink-0">
-                                            <img src={`http://localhost/api/profPic/${selectedUser.prof_pic}`} className="h-12 w-12 rounded-full" alt="" />
+                                <div className="bg-[#242526] px-4 py-4 ">
+                                    <div className="flex items-center mb-2 justify-between">
+                                        <div className="flex items-center">
+                                            <div className="flex-shrink-0">
+                                                <img src={`http://localhost/api/profPic/${selectedUser.prof_pic}`} className="h-12 w-12 rounded-full" alt="" />
+                                            </div>
+                                            <div className="ml-3">
+                                                <h3 className="text-lg leading-6 font-medium text-white">{selectedUser.firstname} {selectedUser.lastname}</h3>
+                                            </div>
                                         </div>
-                                        <div className="ml-3">
-                                            <h3 className="text-lg leading-6 font-medium text-gray-900">{selectedUser.firstname} {selectedUser.lastname}</h3>
+                                        <div>
+                                            <button type="button" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-2xl text-white bg-slate-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onClick={closeModal}>
+                                                Close
+                                            </button>
                                         </div>
                                     </div>
+
                                     <hr className="my-2 border-gray-200" />
 
                                     {/* Message area */}
-                                    <div className="h-64 overflow-y-auto mb-4">
+                                    <div className="h-64 overflow-y-auto" style={{ height: '55vh' }}>
                                         {messages.length > 0 && messages.map((message, index) => (
                                             <div key={index} className="mb-4">
                                                 <div className={`bg-slate-900 text-white p-2 rounded-lg ${message.chat_userID === userId ? 'bg-blue-100' : ''}`}>
@@ -712,7 +721,7 @@ function Dashboard() {
                                                     {editingMessageId === message.chat_id ? (
                                                         <>
                                                             <div className="flex items-center">
-                                                                <img src={`http://localhost/api/profPic/${message.prof_pic}`} className="rounded-full mr-2 mb-4" alt="" style={{ width: '45px', height: '45px' }} /> {/* Profile picture */}
+                                                                <img src={`http://localhost/api/profPic/${message.prof_pic}`} className="rounded-full mr-2 mb-4" alt="" style={{ width: '45px', height: '45px' }} />
                                                                 <div>
                                                                     <p style={{ fontSize: "17px", marginBottom: '5px' }}>{message.firstname}</p>
                                                                     <p className="text-right text-gray-500 text-xs">{message.chat_date_created}</p>
@@ -743,7 +752,7 @@ function Dashboard() {
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <div style={{ display: 'flex' }}>
+                                                            <div style={{ display: 'flex' }} className='mt-2'>
                                                                 <img src={`http://localhost/api/profPic/${message.prof_pic}`} className="rounded-full mr-2" alt="" style={{ width: '45px', height: '45px' }} />
                                                                 <div>
                                                                     <p style={{ fontSize: "17px", marginBottom: '5px' }}>{message.firstname}</p>
@@ -760,7 +769,7 @@ function Dashboard() {
                                 </div>
 
                                 {/* Bottom section: Logged-in user profile and message input */}
-                                <form className="mb-4" onSubmit={sendMessage}>
+                                <form onSubmit={sendMessage}>
                                     <div className="relative flex">
                                         <img src={`http://localhost/api/profPic/${userImage}`} className="rounded-full mt-2.5" alt="" style={{ width: '40px', height: '40px' }} />
                                         <input
@@ -787,14 +796,10 @@ function Dashboard() {
                                 </form>
 
 
-                                <div className="text-right">
-                                    <button type="button" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-2xl text-white bg-slate-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onClick={closeModal}>
-                                        Close
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>
+
                 )}
 
 
