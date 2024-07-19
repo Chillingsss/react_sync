@@ -608,16 +608,6 @@ function Dashboard() {
                         </div>
                         {isOpen && (
                             <div className="md:hidden absolute top-full bg-[#242526] shadow-md rounded-md p-2 ml-60 flex flex-col items-start mt-0">
-                                <a href="/sync/Dashboard" className="mt-4 ml-2 text-gray-300 hover:text-white no-underline">
-                                    <FontAwesomeIcon icon={faHome} size='xl' style={{ color: dashboardActive ? '#ffffff' : '#3766FE' }} /> Home
-                                </a>
-                                <a href="/sync/Profile" className="mt-4 ml-2 text-gray-300 hover:text-white no-underline">
-                                    <FontAwesomeIcon icon={faMessage} size='xl' /> Message
-                                </a>
-                                <a href="#" className="mt-4 ml-2 text-gray-300 hover:text-white no-underline">
-                                    <FontAwesomeIcon icon={faBell} size='xl' /> Notification
-                                </a>
-
 
                                 <div className="flex items-center">
                                     <div className="relative">
@@ -650,10 +640,43 @@ function Dashboard() {
                                             </div>
                                         )}
                                     </div>
-
                                 </div>
+
+                                <a href="/sync/Dashboard" className="mt-4 ml-2 text-gray-300 hover:text-white no-underline">
+                                    <FontAwesomeIcon icon={faHome} size='xl' style={{ color: dashboardActive ? '#ffffff' : '#3766FE' }} /> Home
+                                </a>
+
+                                {/* chat dropdown */}
+                                <div className="flex items-center">
+
+                                    <button onClick={toggleDropdownChat} className="mt-4 ml-2 cursor-pointer text-gray-300 hover:text-blue-500 no-underline" title='Message'>
+                                        <FontAwesomeIcon icon={faMessage} size='xl' /> Message
+                                    </button>
+
+
+                                    {isDropdownOpenChat && (
+                                        <div ref={dropdownRef} className="absolute top-[49px] bg-slate-900 shadow-md rounded-md p-2 flex flex-col items-start right-0 w-60 max-h-60 overflow-y-auto">
+                                            {users.map(user => (
+                                                <a key={user.id} onClick={() => openModal(user)} className="flex justify-start items-start cursor-pointer no-underline mt-3">
+                                                    <img src={`http://localhost/api/profPic/${user.prof_pic}`} className="rounded-full ml-1" alt="" style={{ width: '35px', height: '35px' }} />
+                                                    <p className="text-white ml-2 mt-1">
+                                                        <span className="hover:text-blue-400">{user.firstname} {user.lastname}</span>
+                                                    </p>
+                                                </a>
+                                            ))}
+                                            <hr style={{ width: '100%', borderTop: '1px solid #ccc', margin: '8px 0' }} />
+                                        </div>
+                                    )}
+                                </div>
+
+                                <a href="#" className="mt-4 ml-2 text-gray-300 hover:text-white no-underline">
+                                    <FontAwesomeIcon icon={faBell} size='xl' /> Notification
+                                </a>
+
+
                             </div>
                         )}
+
                     </div>
                 </nav>
 
@@ -681,11 +704,16 @@ function Dashboard() {
                                             </div>
                                         </div>
                                         <div>
-                                            <button type="button" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-2xl text-white bg-slate-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onClick={closeModal}>
-                                                Close
+                                            <button
+                                                type="button"
+                                                className="inline-flex justify-center py-2 px-3 border border-transparent shadow-sm text-sm font-medium rounded-2xl text-white bg-slate-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                                onClick={closeModal}
+                                            >
+                                                <FontAwesomeIcon icon={faTimes} />
                                             </button>
                                         </div>
                                     </div>
+
 
                                     <hr className="my-2 border-gray-200" />
 
