@@ -424,12 +424,13 @@ function Dashboard() {
 
             const response = await axios.post(`http://localhost/api/user.php`, formData);
 
-            if (response.data === 1) {
+            if (response.data.status === 1) {
                 console.log('Message edited successfully');
-                // Update messages state after editing
-                fetchMessages();
+
+
                 setEditingMessageId(null);
                 setEditedMessage('');
+                fetchMessages();
             } else {
                 console.error('Error editing message:', response.data.message);
             }
@@ -720,28 +721,26 @@ function Dashboard() {
                                     {/* Message area */}
                                     <div className="h-64 overflow-y-auto" style={{ height: '55vh' }}>
                                         {messages.length > 0 && messages.map((message, index) => (
-                                            <div key={index} className="mb-4">
+                                            <div key={index} className="mb-2">
                                                 <div className={`bg-slate-900 text-white p-2 rounded-lg ${message.chat_userID === userId ? 'bg-blue-100' : ''}`}>
                                                     <div className="relative">
                                                         {message.chat_userID === userId && (
-                                                            <div className="flex items-center">
-                                                                <button className="flex items-center text-gray-300 hover:text-white focus:outline-none absolute top-0 right-0">
-                                                                    <FontAwesomeIcon
-                                                                        icon={faEdit}
-                                                                        className="mr-1 hover:text-blue-500"
-                                                                        style={{ width: '15px', height: '15px', cursor: 'pointer', marginRight: '20px' }}
-                                                                        onClick={() => {
-                                                                            setEditedMessage(message.chat_message);
-                                                                            setEditingMessageId(message.chat_id);
-                                                                        }}
-                                                                    />
-                                                                    <FontAwesomeIcon
-                                                                        icon={faTrashAlt}
-                                                                        className="mr-1 hover:text-red-500"
-                                                                        style={{ width: '15px', height: '15px', cursor: 'pointer' }}
-                                                                        onClick={() => deleteMessage(message.chat_id)}
-                                                                    />
-                                                                </button>
+                                                            <div className="flex items-center absolute top-0 right-0">
+                                                                <FontAwesomeIcon
+                                                                    icon={faEdit}
+                                                                    className="mr-1 hover:text-blue-500"
+                                                                    style={{ width: '15px', height: '15px', cursor: 'pointer', marginRight: '20px' }}
+                                                                    onClick={() => {
+                                                                        setEditedMessage(message.chat_message);
+                                                                        setEditingMessageId(message.chat_id);
+                                                                    }}
+                                                                />
+                                                                <FontAwesomeIcon
+                                                                    icon={faTrashAlt}
+                                                                    className="mr-1 hover:text-red-500"
+                                                                    style={{ width: '15px', height: '15px', cursor: 'pointer' }}
+                                                                    onClick={() => deleteMessage(message.chat_id)}
+                                                                />
                                                             </div>
                                                         )}
                                                     </div>
@@ -791,6 +790,7 @@ function Dashboard() {
                                                         </>
                                                     )}
                                                 </div>
+
                                             </div>
                                         ))}
                                     </div>
