@@ -830,6 +830,8 @@ const UserPost = ({ item, currentUse, comment }) => {
                                 className="text-gray-500 cursor-pointer"
                                 onMouseEnter={() => handleMouseEnter(item.id)}
                                 onMouseLeave={() => setShowCommenterDetails(false)}
+                                onClick={() => handleShowCommentModal(item.id)}
+
                             >
                                 {item.countComment} {item.countComment === 1 ? 'comment' : 'comments'}
                             </span>
@@ -937,6 +939,7 @@ const UserPost = ({ item, currentUse, comment }) => {
                                 <p style={{ fontSize: "17px", marginBottom: '5px' }}>{item.firstname}</p>
                                 <p className="text-right text-gray-500 text-xs">{item.upload_date}</p>
                             </div>
+
                         </div>
                         <p className='text-start text-[15.5px]'>{item.caption}</p>
 

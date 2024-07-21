@@ -12,6 +12,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Home } from 'react-feather';
+import { Link } from 'react-router-dom';
 
 
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -280,18 +281,25 @@ function Dashboard() {
 
 
     const fetchUsers = () => {
-
         const apiUrl = 'http://localhost/api/userChat.php';
+        const userId = localStorage.getItem('id'); // Assuming the user ID is stored in localStorage
 
-        fetch(apiUrl)
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userId: parseInt(userId) }), // Send the userId in the request body
+        })
             .then(response => response.json())
             .then(data => {
-                setUsers(data.filter(user => user.id !== 1));
+                setUsers(data.filter(user => user.id !== parseInt(userId)));
             })
             .catch(error => {
                 console.error('Error fetching users:', error);
             });
     };
+
 
     useEffect(() => {
         if (isDropdownOpenChat) {
@@ -317,7 +325,7 @@ function Dashboard() {
         setSelectedUser(user);
         setIsModalOpen(true);
         sessionStorage.setItem('selectedUserId', user.id);
-
+        fetchMessages();
 
     };
 
@@ -328,7 +336,7 @@ function Dashboard() {
 
 
     const openEditModal = (message) => {
-        console.log("Message to edit:", message); // Debug log
+        console.log("Message to edit:", message);
         setSelectedMessage(message);
         setIsEditModalOpen(true);
     };
@@ -350,7 +358,7 @@ function Dashboard() {
     const sendMessage = async (e, message) => {
         e.preventDefault();
 
-        if (!newMessage) {
+        if (!newMessage.trim()) {
             toast.error('Please enter a message');
             return;
         }
@@ -433,6 +441,20 @@ function Dashboard() {
         console.log("Selected Message:", selectedMessage); // Debug log
 
         try {
+            if (!selectedMessage.chat_message.trim()) {
+                toast.error('Please enter a message');
+                return;
+            }
+
+            // Check if the message has actually changed
+            const originalMessage = messages.find(msg => msg.chat_id === messageId);
+            if (originalMessage.chat_message === selectedMessage.chat_message) {
+                // No change detected, just close the modal
+                setIsEditModalOpen(false);
+                return;
+            }
+
+            // Proceed with the update if the message has changed
             const jsonData = {
                 messageId: messageId,
                 message: selectedMessage.chat_message,
@@ -456,6 +478,7 @@ function Dashboard() {
         }
     };
 
+
     // Make sure `chat_id` is correctly set in `selectedMessage`
     const handleInputChange = (value) => {
         setSelectedMessage((prev) => ({
@@ -469,7 +492,7 @@ function Dashboard() {
     const deleteMessage = async (messageId) => {
         try {
             const jsonData = {
-                messageId: messageId,
+                chat_id: messageId, // Correct key to match the backend
             };
 
             const formData = new FormData();
@@ -490,6 +513,15 @@ function Dashboard() {
         }
     };
 
+
+
+    const messageContainerRef = useRef(null);
+
+    useEffect(() => {
+        if (messageContainerRef.current) {
+            messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+        }
+    }, [messages]);
 
     // const handleSendMessage = async (e) => {
     //     e.preventDefault();
@@ -518,8 +550,12 @@ function Dashboard() {
                         <div className="flex items-center mt-2">
 
                             <div className="flex items-center" style={{ position: 'absolute', left: 15 }}>
-                                <h1 className="text-white font-dancing-script mt-1 cursor-pointer"
-                                    onClick={handleReloadPage}>S y n c</h1>
+                                <Link
+                                    to="/Dashboard"
+                                    className="text-white font-dancing-script mt-1 cursor-pointer no-underline text-4xl"
+                                >
+                                    S y n c
+                                </Link>
                                 {/* <img src="var/www/html/crud/sync.png" alt="Sync Logo" /> */}
 
 
@@ -528,7 +564,7 @@ function Dashboard() {
                                     value={searchQuery}
                                     onChange={handleSearch}
                                     placeholder="Search Sync"
-                                    className="ml-4 px-4 py-2 text-gray-200 rounded-full border border-gray-300 focus:outline-none focus:border-blue-500 bg-[#242526]"
+                                    className="ml-4 px-4 py-2 mt-1 text-gray-200 rounded-full border border-gray-300 focus:outline-none focus:border-blue-500 bg-[#242526]"
                                 />
                                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                     <FontAwesomeIcon icon={faSearch} className="text-gray-400" />
@@ -538,7 +574,7 @@ function Dashboard() {
                                         {searchResults.map((user) => (
                                             <div
                                                 key={user.id}
-                                                className="p-2 cursor-pointer hover:bg-gray-200 flex items-center"
+                                                className="p-2 cursor-pointer hover:bg-gray-600 flex items-center"
                                                 onClick={() => handleSearchResultClick(user)}
                                             >
                                                 <img
@@ -742,11 +778,10 @@ function Dashboard() {
                                         </div>
                                     </div>
 
-
                                     <hr className="my-2 border-gray-200" />
 
                                     {/* Message area */}
-                                    <div className="h-64 overflow-y-auto" style={{ height: '55vh' }}>
+                                    <div className="h-64 overflow-y-auto" style={{ height: '55vh' }} ref={messageContainerRef}>
                                         {messages.length > 0 && messages.map((message, index) => (
                                             <div key={index} className="mb-2">
                                                 <div className={`bg-slate-900 text-white p-2 rounded-lg ${message.chat_userID === userId ? 'bg-blue-100' : ''}`}>
@@ -781,51 +816,45 @@ function Dashboard() {
                                         ))}
 
                                         {isEditModalOpen && (
-                                            <div className="fixed z-10 inset-0 overflow-y-auto">
-                                                <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                                                    <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-                                                        <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-                                                    </div>
-                                                    <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                                    <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                                                        <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                                            <div className="sm:flex sm:items-start">
-                                                                <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                                                                    <h3 className="text-lg leading-6 font-medium text-gray-900">
-                                                                        Edit Message
-                                                                    </h3>
-                                                                    <div className="mt-2">
-                                                                        <textarea
-                                                                            value={selectedMessage.chat_message}
-                                                                            onChange={(e) => handleInputChange(e.target.value)}
-                                                                            className="outline-none bg-slate-900 text-white w-full"
-                                                                        />
-                                                                    </div>
-                                                                </div>
+                                            <div className="fixed inset-0 z-10 overflow-y-auto flex items-center justify-center">
+                                                <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+                                                    <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+                                                </div>
+                                                <div className="inline-block bg-[#242526] rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:max-w-md sm:w-11/12">
+                                                    <div className="bg-[#242526] px-4 pt-5 pb-4 sm:p-3 sm:pb-4">
+                                                        <div className="sm:flex sm:items-start">
+                                                            <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                                                <h3 className="text-lg leading-6 font-medium text-white">
+                                                                    Edit Message
+                                                                </h3>
+                                                                <textarea
+                                                                    value={selectedMessage.chat_message}
+                                                                    onChange={(e) => handleInputChange(e.target.value)}
+                                                                    className="outline-none bg-slate-900 shadow-sm rounded-2xl text-white w-full items-center p-2"
+                                                                />
                                                             </div>
                                                         </div>
-                                                        <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                                                            <button
-                                                                type="button"
-                                                                className="inline-flex justify-center py-1 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2"
-                                                                onClick={() => handleEditMessage(selectedMessage.chat_id)}
-                                                            >
-                                                                <FontAwesomeIcon icon={faCheck} className="mr-1" />
-                                                            </button>
-                                                            <button
-                                                                type="button"
-                                                                className="inline-flex justify-center py-1 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                                                onClick={closeEditModal}
-                                                            >
-                                                                <FontAwesomeIcon icon={faTimes} className="mr-1" />
-                                                            </button>
-                                                        </div>
+                                                    </div>
+                                                    <div className="bg-[#242526] px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                                        <button
+                                                            type="button"
+                                                            className="inline-flex justify-center py-1 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2"
+                                                            onClick={() => handleEditMessage(selectedMessage.chat_id)}
+                                                        >
+                                                            <FontAwesomeIcon icon={faCheck} />
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="inline-flex justify-center mr-2 py-1 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                                            onClick={closeEditModal}
+                                                        >
+                                                            <FontAwesomeIcon icon={faTimes} />
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
                                         )}
                                     </div>
-
                                 </div>
 
                                 {/* Bottom section: Logged-in user profile and message input */}
@@ -854,12 +883,9 @@ function Dashboard() {
                                         </button>
                                     </div>
                                 </form>
-
-
                             </div>
                         </div>
                     </div>
-
                 )}
 
 
