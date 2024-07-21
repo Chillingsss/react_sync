@@ -58,11 +58,12 @@ function Dashboard() {
 
     const userId = localStorage.getItem('id');
 
+    const [selectedMessage, setSelectedMessage] = useState(null);
 
 
     const [editingMessageId, setEditingMessageId] = useState(null);
     const [editedMessage, setEditedMessage] = useState('');
-
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     const [isNameHighlighted, setIsNameHighlighted] = useState(false);
 
@@ -317,6 +318,7 @@ function Dashboard() {
         setIsModalOpen(true);
         sessionStorage.setItem('selectedUserId', user.id);
 
+
     };
 
     const closeModal = () => {
@@ -325,12 +327,27 @@ function Dashboard() {
     };
 
 
+    const openEditModal = (message) => {
+        console.log("Message to edit:", message); // Debug log
+        setSelectedMessage(message);
+        setIsEditModalOpen(true);
+    };
+
+
+    const closeEditModal = () => {
+        setSelectedMessage(null);
+        setIsEditModalOpen(false);
+    };
+
+
+
+
 
     const [showBanIcon, setShowBanIcon] = useState(false);
     const [newMessage, setNewMessage] = useState('');
     const [messages, setMessages] = useState([]);
 
-    const sendMessage = async (e) => {
+    const sendMessage = async (e, message) => {
         e.preventDefault();
 
         if (!newMessage) {
@@ -357,6 +374,7 @@ function Dashboard() {
 
             const response = await axios.post(`http://localhost/api/user.php`, formData);
             console.log('Message sent successfully:', response.data);
+
 
             return response.data;
         } catch (error) {
@@ -407,15 +425,17 @@ function Dashboard() {
 
     useEffect(() => {
         fetchMessages();
-    }, [fetchMessages]);
+    }, []);
 
 
 
     const handleEditMessage = async (messageId) => {
+        console.log("Selected Message:", selectedMessage); // Debug log
+
         try {
             const jsonData = {
                 messageId: messageId,
-                message: editedMessage,
+                message: selectedMessage.chat_message,
             };
 
             const formData = new FormData();
@@ -426,10 +446,7 @@ function Dashboard() {
 
             if (response.data.status === 1) {
                 console.log('Message edited successfully');
-
-
-                setEditingMessageId(null);
-                setEditedMessage('');
+                setIsEditModalOpen(false);
                 fetchMessages();
             } else {
                 console.error('Error editing message:', response.data.message);
@@ -438,6 +455,16 @@ function Dashboard() {
             console.error('Error editing message:', error);
         }
     };
+
+    // Make sure `chat_id` is correctly set in `selectedMessage`
+    const handleInputChange = (value) => {
+        setSelectedMessage((prev) => ({
+            ...prev,
+            chat_message: value,
+        }));
+    };
+
+
 
     const deleteMessage = async (messageId) => {
         try {
@@ -730,10 +757,7 @@ function Dashboard() {
                                                                     icon={faEdit}
                                                                     className="mr-1 hover:text-blue-500"
                                                                     style={{ width: '15px', height: '15px', cursor: 'pointer', marginRight: '20px' }}
-                                                                    onClick={() => {
-                                                                        setEditedMessage(message.chat_message);
-                                                                        setEditingMessageId(message.chat_id);
-                                                                    }}
+                                                                    onClick={() => openEditModal(message)}
                                                                 />
                                                                 <FontAwesomeIcon
                                                                     icon={faTrashAlt}
@@ -744,56 +768,64 @@ function Dashboard() {
                                                             </div>
                                                         )}
                                                     </div>
-
-                                                    {editingMessageId === message.chat_id ? (
-                                                        <>
-                                                            <div className="flex items-center">
-                                                                <img src={`http://localhost/api/profPic/${message.prof_pic}`} className="rounded-full mr-2 mb-4" alt="" style={{ width: '45px', height: '45px' }} />
-                                                                <div>
-                                                                    <p style={{ fontSize: "17px", marginBottom: '5px' }}>{message.firstname}</p>
-                                                                    <p className="text-right text-gray-500 text-xs">{message.chat_date_created}</p>
-                                                                </div>
-                                                            </div>
-
-                                                            <textarea
-                                                                value={editedMessage}
-                                                                onChange={(e) => setEditedMessage(e.target.value)}
-                                                                className="outline-none bg-slate-900 text-white w-full"
-                                                            />
-                                                            <div className="text-right mt-2">
-                                                                <button
-                                                                    type="button"
-                                                                    className="inline-flex justify-center py-1 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2"
-                                                                    onClick={() => handleEditMessage(message.chat_id)}
-                                                                >
-                                                                    <FontAwesomeIcon icon={faCheck} className="mr-1" />
-                                                                </button>
-                                                                <button
-                                                                    type="button"
-                                                                    className="inline-flex justify-center py-1 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                                                    onClick={() => setEditingMessageId(null)}
-                                                                >
-                                                                    <FontAwesomeIcon icon={faTimes} className="mr-1" />
-                                                                </button>
-                                                            </div>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <div style={{ display: 'flex' }} className='mt-2'>
-                                                                <img src={`http://localhost/api/profPic/${message.prof_pic}`} className="rounded-full mr-2" alt="" style={{ width: '45px', height: '45px' }} />
-                                                                <div>
-                                                                    <p style={{ fontSize: "17px", marginBottom: '5px' }}>{message.firstname}</p>
-                                                                    <p className="text-left text-gray-500 text-xs">{message.chat_date_created}</p>
-                                                                </div>
-                                                            </div>
-                                                            <p>{message.chat_message}</p>
-                                                        </>
-                                                    )}
+                                                    <div style={{ display: 'flex' }} className='mt-2'>
+                                                        <img src={`http://localhost/api/profPic/${message.prof_pic}`} className="rounded-full mr-2" alt="" style={{ width: '45px', height: '45px' }} />
+                                                        <div>
+                                                            <p style={{ fontSize: "17px", marginBottom: '5px' }}>{message.firstname}</p>
+                                                            <p className="text-left text-gray-500 text-xs">{message.chat_date_created}</p>
+                                                        </div>
+                                                    </div>
+                                                    <p>{message.chat_message}</p>
                                                 </div>
-
                                             </div>
                                         ))}
+
+                                        {isEditModalOpen && (
+                                            <div className="fixed z-10 inset-0 overflow-y-auto">
+                                                <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                                    <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+                                                        <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+                                                    </div>
+                                                    <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                                                    <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                                                        <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                                            <div className="sm:flex sm:items-start">
+                                                                <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                                                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                                                                        Edit Message
+                                                                    </h3>
+                                                                    <div className="mt-2">
+                                                                        <textarea
+                                                                            value={selectedMessage.chat_message}
+                                                                            onChange={(e) => handleInputChange(e.target.value)}
+                                                                            className="outline-none bg-slate-900 text-white w-full"
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                                            <button
+                                                                type="button"
+                                                                className="inline-flex justify-center py-1 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2"
+                                                                onClick={() => handleEditMessage(selectedMessage.chat_id)}
+                                                            >
+                                                                <FontAwesomeIcon icon={faCheck} className="mr-1" />
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                className="inline-flex justify-center py-1 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                                                onClick={closeEditModal}
+                                                            >
+                                                                <FontAwesomeIcon icon={faTimes} className="mr-1" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
+
                                 </div>
 
                                 {/* Bottom section: Logged-in user profile and message input */}
