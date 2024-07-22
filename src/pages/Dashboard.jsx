@@ -248,7 +248,7 @@ function Dashboard() {
     const handleSearch = async (e) => {
         const query = e.target.value;
         setSearchQuery(query);
-
+        setIsCardOpen(true);
         if (query.length > 2) {
             try {
                 const response = await axios.get(`http://localhost/api/search.php?query=${query}`);
@@ -269,6 +269,7 @@ function Dashboard() {
         sessionStorage.setItem("userProfile", user.prof_pic);
 
         window.location.href = `/sync/UserProfile?userId=${user.id}`;
+        setIsCardOpen(false);
     };
 
 
@@ -320,18 +321,43 @@ function Dashboard() {
         }
     };
 
+    const [isCardOpen, setIsCardOpen] = useState(false);
+    const searchRef = useRef(null); // Ref for the search input
+    const cardRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                searchRef.current &&
+                !searchRef.current.contains(event.target) &&
+                cardRef.current &&
+                !cardRef.current.contains(event.target)
+            ) {
+                setIsCardOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
 
     const openModal = (user) => {
         setSelectedUser(user);
         setIsModalOpen(true);
         sessionStorage.setItem('selectedUserId', user.id);
         fetchMessages();
+        setIsDropdownOpenChat(false);
 
     };
 
     const closeModal = () => {
+        sessionStorage.removeItem('selectedUserId');
         setSelectedUser(null);
         setIsModalOpen(false);
+        setIsDropdownOpenChat(true);
     };
 
 
@@ -523,6 +549,45 @@ function Dashboard() {
         }
     }, [messages]);
 
+
+    const modalRef = useRef(null);
+
+
+    useEffect(() => {
+        const handleClickOutsideMessage = (event) => {
+            if (modalRef.current && !modalRef.current.contains(event.target)) {
+                closeModal();
+            }
+        };
+
+        if (isModalOpen) {
+            document.addEventListener('mousedown', handleClickOutsideMessage);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutsideMessage);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutsideMessage);
+        };
+    }, [isModalOpen, closeModal]);
+
+    const [searchMessage, setSearchMessage] = useState('');
+
+    const filteredUsers = users.filter(user =>
+        `${user.firstname} ${user.lastname}`.toLowerCase().includes(searchMessage.toLowerCase())
+    );
+
+
+    const handleClearSearchMessage = () => {
+        setSearchMessage(''); // Clear the search input
+    };
+
+    const handleClearSearch = () => {
+        setSearchQuery(''); // Clear the search input
+        setSearchResults([]);
+        setIsCardOpen(false); // Optionally clear the search results
+    };
+
     // const handleSendMessage = async (e) => {
     //     e.preventDefault();
     //     if (!newMessage) {
@@ -556,37 +621,45 @@ function Dashboard() {
                                 >
                                     S y n c
                                 </Link>
-                                {/* <img src="var/www/html/crud/sync.png" alt="Sync Logo" /> */}
+                                {/* <Image src="/var/www/html/crud/logo/sync.png" alt="Sync Logo" /> */}
 
 
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={handleSearch}
-                                    placeholder="Search Sync"
-                                    className="ml-4 px-4 py-2 mt-1 text-gray-200 rounded-full border border-gray-300 focus:outline-none focus:border-blue-500 bg-[#242526]"
-                                />
-                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <FontAwesomeIcon icon={faSearch} className="text-gray-400" />
-                                </div>
-                                {searchResults.length > 0 && (
-                                    <div className="absolute bg-[#242526] text-gray-200 shadow-md rounded-md mt-64 ml-32 p-3 z-30 w-56">
-                                        {searchResults.map((user) => (
-                                            <div
-                                                key={user.id}
-                                                className="p-2 cursor-pointer hover:bg-gray-600 flex items-center"
-                                                onClick={() => handleSearchResultClick(user)}
-                                            >
-                                                <img
-                                                    src={`http://localhost/api/profPic/${user.prof_pic}`}
-                                                    alt={`${user.firstname} ${user.lastname}`}
-                                                    className="w-8 h-8 rounded-full mr-2"
-                                                />
-                                                <span>{user.firstname} {user.lastname}</span>
-                                            </div>
-                                        ))}
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        ref={searchRef}
+                                        value={searchQuery}
+                                        onChange={handleSearch}
+                                        placeholder="Search Sync"
+                                        className="ml-4 px-4 py-2 mt-1 text-gray-200 rounded-full border border-gray-300 focus:outline-none focus:border-blue-500 bg-[#242526]"
+                                        onFocus={() => setIsCardOpen(true)} // Show card on focus
+                                    />
+                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <FontAwesomeIcon
+                                            icon={searchQuery ? faTimes : faSearch} // Conditionally change the icon
+                                            className="text-gray-400 cursor-pointer"
+                                            onClick={searchQuery ? handleClearSearch : undefined} // Clear search if 'X' icon is clicked
+                                        />
                                     </div>
-                                )}
+                                    {isCardOpen && searchResults.length > 0 && (
+                                        <div ref={cardRef} className="absolute bg-[#242526] text-gray-200 shadow-md rounded-md mt-2 ml-4 w-56 max-h-80 overflow-y-auto z-30">
+                                            {searchResults.map((user) => (
+                                                <div
+                                                    key={user.id}
+                                                    className="p-2 cursor-pointer hover:bg-gray-600 flex items-center"
+                                                    onClick={() => handleSearchResultClick(user)}
+                                                >
+                                                    <img
+                                                        src={`http://localhost/api/profPic/${user.prof_pic}`}
+                                                        alt={`${user.firstname} ${user.lastname}`}
+                                                        className="w-8 h-8 rounded-full mr-2"
+                                                    />
+                                                    <span>{user.firstname} {user.lastname}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
 
@@ -606,8 +679,24 @@ function Dashboard() {
                                     </div>
 
                                     {isDropdownOpenChat && (
-                                        <div ref={dropdownRef} className="absolute top-[49px] bg-slate-900 shadow-md rounded-md p-2 flex flex-col items-start right-0 w-60 max-h-60 overflow-y-auto">
-                                            {users.map(user => (
+                                        <div ref={dropdownRef} className="absolute top-[49px] bg-slate-900 shadow-md rounded-md p-2 flex flex-col items-start right-0 w-60 max-h-[26rem] overflow-y-auto">
+                                            <div className="relative mb-2">
+                                                <FontAwesomeIcon
+                                                    icon={searchMessage ? faTimes : faSearch}
+                                                    className="absolute inset-y-0 right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
+                                                    style={{ fontSize: '1.2rem' }}
+                                                    onClick={searchMessage ? handleClearSearchMessage : undefined}
+                                                />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Search users..."
+                                                    value={searchMessage}
+                                                    onChange={(e) => setSearchMessage(e.target.value)}
+                                                    className="pl-4 pr-12 p-2 w-full bg-slate-800 text-white rounded-md"
+                                                />
+                                            </div>
+
+                                            {filteredUsers.map(user => (
                                                 <a key={user.id} onClick={() => openModal(user)} className="flex justify-start items-start cursor-pointer no-underline mt-3">
                                                     <img src={`http://localhost/api/profPic/${user.prof_pic}`} className="rounded-full ml-1" alt="" style={{ width: '35px', height: '35px' }} />
                                                     <p className="text-white ml-2 mt-1">
@@ -755,7 +844,7 @@ function Dashboard() {
 
                             <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                            <div className="inline-block align-bottom bg-[#242526] rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-10 sm:align-middle sm:max-w-xl sm:w-11/12" style={{ height: '80vh' }}>
+                            <div ref={modalRef} className="inline-block align-bottom bg-[#242526] rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-10 sm:align-middle sm:max-w-xl sm:w-11/12" style={{ height: '80vh' }}>
                                 {/* Top section: Selected user profile */}
                                 <div className="bg-[#242526] px-4 py-4 ">
                                     <div className="flex items-center mb-2 justify-between">

@@ -37,6 +37,9 @@ const UserPost = ({ item, currentUse, comment }) => {
     const [commentss, setCommentss] = useState([]);
     const [selectedPostId, setSelectedPostId] = useState(null);
 
+    const [commentsToShow, setCommentsToShow] = useState(5); 
+    const [showAllComments, setShowAllComments] = useState(false);
+
 
     const [showBanIcon, setShowBanIcon] = useState(false);
 
@@ -403,6 +406,16 @@ const UserPost = ({ item, currentUse, comment }) => {
         } catch (error) {
             console.error('Error deleting comment:', error);
         }
+    };
+
+    const handleViewMoreComments = () => {
+        setShowAllComments(true);
+        setCommentsToShow(comments.length);
+    };
+
+    const handleViewLessComments = () => {
+        setShowAllComments(false);
+        setCommentsToShow(5);
     };
 
 
@@ -932,22 +945,18 @@ const UserPost = ({ item, currentUse, comment }) => {
             <Modal show={showCommentModal} onHide={handleCloseCommentModal} dialogClassName="w-20/20 md:w-3/4 lg:w-2/3 xl:w-1/2">
                 <Modal.Body className="bg-[#242526] text-white">
                     <div className="mb-4">
-
                         <div className="flex">
                             <img src={"http://localhost/api/profPic/" + item.prof_pic} className="rounded-full" alt="" style={{ width: '45px', height: '45px' }} />
                             <div style={{ marginLeft: '10px' }}>
                                 <p style={{ fontSize: "17px", marginBottom: '5px' }}>{item.firstname}</p>
                                 <p className="text-right text-gray-500 text-xs">{item.upload_date}</p>
                             </div>
-
                         </div>
                         <p className='text-start text-[15.5px]'>{item.caption}</p>
-
                         {item.filename && (
                             <img src={"http://localhost/sync/uploads/" + item.filename} className="rounded-lg mx-auto" style={{ maxWidth: '100%', maxHeight: '400px' }} />
                         )}
                     </div>
-
 
                     <div className="flex justify-between text-gray-400" style={{ fontSize: "14px" }}>
                         <p
@@ -986,17 +995,15 @@ const UserPost = ({ item, currentUse, comment }) => {
                         </p>
                     </div>
 
-
-                    {comments.length > 0 && comments.map((comment, index) => (
+                    {comments.slice(0, commentsToShow).map((comment, index) => (
                         <div key={index} className="mb-2">
                             <div className={`bg-slate-900 text-white p-2 rounded-lg ${comment.userComment ? 'bg-blue-100' : ''}`}>
-
                                 <div className="relative">
                                     {comment.comment_userID === localStorage.getItem('id') && (
                                         <div className="flex items-center">
                                             <button className="flex items-center text-gray-300 hover:text-white focus:outline-none absolute top-0 right-0">
                                                 <FontAwesomeIcon
-                                                    icon={farEdit}
+                                                    icon={faEdit}
                                                     className="mr-1 hover:text-blue-500"
                                                     style={{ width: '15px', height: '15px', cursor: 'pointer', marginRight: '20px' }}
                                                     onClick={() => {
@@ -1025,12 +1032,10 @@ const UserPost = ({ item, currentUse, comment }) => {
                                             </div>
                                         </div>
 
-
                                         <textarea
                                             value={editedComment}
                                             onChange={(e) => setEditedComment(e.target.value)}
                                             className="outline-none bg-slate-900 text-white w-full "
-
                                         />
                                         <div className="text-right mt-2">
                                             <button type="button"
@@ -1044,7 +1049,6 @@ const UserPost = ({ item, currentUse, comment }) => {
                                                 onClick={() => setEditingCommentId(null)}>
                                                 <FontAwesomeIcon icon={faTimes} className="mr-1" />
                                             </button>
-
                                         </div>
                                     </>
                                 ) : (
@@ -1053,13 +1057,9 @@ const UserPost = ({ item, currentUse, comment }) => {
                                             <img src={"http://localhost/api/profPic/" + comment.prof_pic} className="rounded-full mr-2" alt="" style={{ width: '45px', height: '45px' }} />
                                             <div >
                                                 <p style={{ fontSize: "17px", marginBottom: '5px' }} >{comment.firstname}</p>
-
                                                 <p className="text-left text-gray-500 text-xs">{comment.comment_date_created}</p>
                                             </div>
                                         </div>
-
-
-
                                         <p>{comment.comment_message}</p>
                                     </>
                                 )}
@@ -1067,6 +1067,25 @@ const UserPost = ({ item, currentUse, comment }) => {
                         </div>
                     ))}
 
+                    {comments.length > commentsToShow ? (
+                        <div className="text-center">
+                            <button
+                                className="text-blue-500 hover:underline"
+                                onClick={handleViewMoreComments}
+                            >
+                                View more comments
+                            </button>
+                        </div>
+                    ) : showAllComments ? (
+                        <div className="text-center">
+                            <button
+                                className="text-blue-500 hover:underline"
+                                onClick={handleViewLessComments}
+                            >
+                                View less comments
+                            </button>
+                        </div>
+                    ) : null}
 
                     <form onSubmit={handleSubmitComment} className="mb-4">
                         <div className="relative flex">
@@ -1093,8 +1112,6 @@ const UserPost = ({ item, currentUse, comment }) => {
                             </button>
                         </div>
                     </form>
-
-
 
                     <div className="text-right">
                         <button type="button" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-2xl text-white bg-slate-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onClick={handleCloseCommentModal}>
