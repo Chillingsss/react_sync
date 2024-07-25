@@ -15,7 +15,7 @@ library.add(faHome, faUser, faBell, faSignOutAlt);
 
 const UserPost = ({ item, currentUse, comment }) => {
 
-    const [likes, setLikes] = useState(0);
+
 
     const [count_Comment, setCommentCount] = useState(0);
     const [showCommenterDetails, setShowCommenterDetails] = useState(false);
@@ -37,7 +37,7 @@ const UserPost = ({ item, currentUse, comment }) => {
     const [commentss, setCommentss] = useState([]);
     const [selectedPostId, setSelectedPostId] = useState(null);
 
-    const [commentsToShow, setCommentsToShow] = useState(5); 
+    const [commentsToShow, setCommentsToShow] = useState(5);
     const [showAllComments, setShowAllComments] = useState(false);
 
 
@@ -68,6 +68,9 @@ const UserPost = ({ item, currentUse, comment }) => {
     const [editedCaption, setEditedCaption] = useState('');
     const [postId, setPostId] = useState(null);
 
+
+    const [likes, setLikes] = useState(0);
+
     const handleOpenEditCaption = (id, caption) => {
         setIsEditingCaptionId(id);
         setEditedCaption(caption);
@@ -77,30 +80,10 @@ const UserPost = ({ item, currentUse, comment }) => {
         setIsOpen(!isOpen);
     };
 
+
+    const [currentReaction, setCurrentReaction] = useState(null);
+
     const isUserLike = useCallback(async () => {
-        try {
-            const url = localStorage.getItem("url") + "user.php";
-            const userId = localStorage.getItem("id");
-
-            const jsonData = {
-                userId: userId,
-                postId: item.id
-            }
-
-            const formData = new FormData();
-            formData.append("json", JSON.stringify(jsonData));
-            formData.append("operation", "isUserLiked");
-
-            var res = await axios.post(url, formData);
-            setIsUserLiked(res.data === 1);
-
-        } catch (error) {
-            alert(error);
-        }
-
-    }, [item.id]);
-
-    const handleLikePost = async () => {
         try {
             const url = localStorage.getItem("url") + "user.php";
             const userId = localStorage.getItem("id");
@@ -112,26 +95,93 @@ const UserPost = ({ item, currentUse, comment }) => {
 
             const formData = new FormData();
             formData.append("json", JSON.stringify(jsonData));
+            formData.append("operation", "isUserReaction");
+
+            const res = await axios.post(url, formData);
+            setCurrentReaction(res.data.reaction);
+
+        } catch (error) {
+            console.error(error);
+        }
+    }, [item.id]);
+
+    useEffect(() => {
+        isUserLike();
+    }, [isUserLike]);
+
+    const reactionIcon = currentReaction === 'like' ? faThumbsUp : currentReaction === 'haha' ? faGrinTears : farGrinTears;
+    const reactionText = currentReaction === 'like' ? 'Like' : currentReaction === 'haha' ? 'Haha' : 'React';
+
+    // const [isUserLiked, setIsUserLiked] = useState(false);
+
+    const [showReactions, setShowReactions] = useState(false);
+    const timeoutRef = useRef(null);
+
+    const handleMouseEnterReaction = () => {
+        clearTimeout(timeoutRef.current);
+        setShowReactions(true);
+    };
+
+    const handleMouseLeave = () => {
+        timeoutRef.current = setTimeout(() => setShowReactions(false), 100);
+    };
+
+
+
+    const handleLikePost = async (reactionType) => {
+        try {
+            const url = localStorage.getItem("url") + "user.php";
+            const userId = localStorage.getItem("id");
+
+
+            const reaction = currentReaction === reactionType ? 'remove' : reactionType;
+
+            const jsonData = {
+                userId: userId,
+                postId: item.id,
+                reaction: reaction
+            };
+
+            const formData = new FormData();
+            formData.append("json", JSON.stringify(jsonData));
             formData.append("operation", "heartpost");
 
             const res = await axios.post(url, formData);
+            console.log("API response:", res.data);
 
             if (res.data === -5) {
-                setLikes((prev) => prev - 1);
+
+                setCurrentReaction(null);
+                setLikes((prev) => Math.max(prev - 1, 0));
             } else if (res.data === 1) {
+
+                setCurrentReaction(reactionType);
                 setLikes((prev) => prev + 1);
+            } else if (res.data === 2) {
+
+                setCurrentReaction(reactionType);
             } else {
-                toast.error("There was something wrong");
-                console.log(res.data);
+                console.error("There was something wrong", res.data);
             }
 
-            setIsUserLiked(!isUserLiked);
-            fetchLikes(); // Refresh likers list
-
+            setShowReactions(false);
         } catch (error) {
-            alert(error);
+            console.error("Error handling like post:", error);
         }
     };
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     const handleSubmitComment = async (e) => {
@@ -675,22 +725,28 @@ const UserPost = ({ item, currentUse, comment }) => {
             });
 
             const data = response.data;
+            console.log("API Response Data:", data);
+
+            if (Array.isArray(data) && data.length > 0) {
+                const likers = data[0];
+                const likersData = likers.likers_firstnames ? likers.likers_firstnames.split(',').map((firstname, index) => ({
+                    firstname: firstname || '',
+                    lastname: likers.likers_lastnames ? likers.likers_lastnames.split(',')[index] : '',
+                    profilePic: likers.likers_profile_pics ? likers.likers_profile_pics.split(',')[index] : '',
+                    userID: likers.likers_ids ? likers.likers_ids.split(',')[index] : '',
+                    reaction: likers.likers_reactions ? likers.likers_reactions.split(',')[index] : ''
+                })) : [];
 
 
-            if (data.length > 0) {
-                setLikes(data[0].likes);
+                setLikes(parseInt(likers.likes, 10) || 0);
 
-                // Process likers data
-                let likersData = data[0].likers_firstnames.split(',').map((firstname, index) => ({
-                    firstname: firstname,
-                    lastname: data[0].likers_lastnames.split(',')[index],
-                    profilePic: data[0].likers_profile_pics.split(',')[index],
-                    userID: data[0].likers_ids.split(',')[index]
-                }));
 
+                const userReaction = likersData.find(liker => liker.userID === userId);
+                setCurrentReaction(userReaction ? userReaction.reaction : null);
                 setLikers(likersData);
             } else {
                 setLikes(0);
+                setCurrentReaction(null);
                 setLikers([]);
             }
 
@@ -699,10 +755,12 @@ const UserPost = ({ item, currentUse, comment }) => {
         }
     }, [item.id]);
 
-
     useEffect(() => {
         fetchLikes();
     }, [fetchLikes]);
+
+
+
 
     const handleClickLikes = () => {
         setShowLikersModal(true);
@@ -710,7 +768,10 @@ const UserPost = ({ item, currentUse, comment }) => {
 
 
 
-
+    const reactionIcons = {
+        like: faThumbsUp,
+        haha: faGrinTears
+    };
 
 
 
@@ -804,14 +865,14 @@ const UserPost = ({ item, currentUse, comment }) => {
 
                     <div className="flex justify-between  mt-3" style={{ fontSize: "14px" }}>
                         <p
-                            className='text-start inline-block cursor-pointer'
+                            className='text-start inline-block cursor-pointer text-gray-500'
                             onMouseEnter={() => setIsHovered(true)}
                             onMouseLeave={() => setIsHovered(false)}
                             onClick={() => handleClickLikes()}
                         >
-                            <FontAwesomeIcon icon={faGrinTears} className="mr-1" />
-                            {likes}
+                            reacted {likes}
                         </p>
+
                         {isHovered && (
                             <div className="absolute bg-slate-600 shadow-md p-2 rounded mt-6 z-10 w-48">
                                 {likers.slice(0, 5).map((liker, index) => (
@@ -885,16 +946,40 @@ const UserPost = ({ item, currentUse, comment }) => {
                     <hr style={{ width: '100%', borderTop: '1px solid #ccc', margin: '-2px 0', }} />
 
                     <div className='flex items-center mt-3'>
-                        <div className="cursor-pointer text-gray-300 hover:text-yellow-300 flex items-center">
+                        <div className="relative cursor-pointer text-gray-300 flex items-center"
+                            onMouseEnter={handleMouseEnterReaction}
+                            onMouseLeave={handleMouseLeave}
+                        >
                             <FontAwesomeIcon
-                                className={isUserLiked ? 'text-yellow-300' : ''}
-                                icon={isUserLiked ? faGrinTears : farGrinTears}
-                                style={{ width: '30px', height: '30px', cursor: 'pointer', marginLeft: '10px' }}
-                                onClick={handleLikePost}
+                                className={`
+                                    ${currentReaction === 'like' ? 'text-blue-500' : ''}
+                                    ${currentReaction === 'haha' ? 'text-yellow-500' : ''}
+                                    ${!currentReaction ? 'text-gray-300' : ''}
+                                `}
+                                icon={reactionIcon}
+                                style={{ width: '30px', height: '30px', cursor: 'pointer' }}
                             />
-                            <span style={{ lineHeight: '30px', marginLeft: '5px', color: isUserLiked ? 'yellow' : 'inherit' }} onClick={handleLikePost}>
-                                {isUserLiked ? 'haha' : 'haha'}
+                            <span style={{ lineHeight: '30px', marginLeft: '5px', color: currentReaction === 'like' ? 'blue' : currentReaction === 'haha' ? 'yellow' : 'inherit' }}>
+                                {reactionText}
                             </span>
+                            {showReactions && (
+                                <div className="absolute bottom-full mt-2 bg-white rounded-lg shadow-lg p-2 z-10 flex space-x-2"
+                                    onMouseEnter={handleMouseEnterReaction}
+                                    onMouseLeave={handleMouseLeave}
+                                >
+                                    <FontAwesomeIcon
+                                        icon={faThumbsUp}
+                                        className={`w-6 h-6 cursor-pointer ${currentReaction === 'like' ? 'text-blue-500' : 'hover:text-blue-500'}`}
+                                        onClick={() => handleLikePost('like')}
+                                    />
+                                    <FontAwesomeIcon
+                                        icon={faGrinTears}
+                                        className={`w-6 h-6 cursor-pointer ${currentReaction === 'haha' ? 'text-yellow-500' : 'hover:text-yellow-500'}`}
+                                        onClick={() => handleLikePost('haha')}
+                                    />
+                                    {/* Add more reactions as needed */}
+                                </div>
+                            )}
                         </div>
                         <div className="ml-12 sm:ml-36 flex items-center cursor-pointer text-gray-300 hover:text-green-500">
                             <FontAwesomeIcon
@@ -906,6 +991,7 @@ const UserPost = ({ item, currentUse, comment }) => {
                         </div>
                     </div>
 
+
                 </Card.Body>
             </Card>
 
@@ -915,21 +1001,34 @@ const UserPost = ({ item, currentUse, comment }) => {
                     <Modal.Title>Likers</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className='bg-[#242526] text-white'>
-                    {likers.map((liker, index) => (
-                        <div key={index} className="flex items-center mt-2">
-                            <img
-                                src={`http://localhost/api/profPic/${liker.profilePic}`}
-                                alt={`${liker.firstname} ${liker.lastname}`}
-                                className="w-6 h-6 rounded-full mr-2"
-                            />
-                            <p
-                                className="text-sm text-white cursor-pointer mt-3"
-                                onClick={() => openUserLikeProfile(liker.userID, liker)}
-                            >
-                                {liker.firstname} {liker.lastname}
-                            </p>
-                        </div>
-                    ))}
+                    {likers.length > 0 ? (
+                        likers.map((liker, index) => (
+                            <div key={index} className="flex items-center mb-2">
+                                <div className="mr-2">
+                                    {liker.reaction && (
+                                        <FontAwesomeIcon
+                                            icon={reactionIcons[liker.reaction]}
+                                            className="text-white"
+                                            style={{ fontSize: '20px' }} // Adjust size as needed
+                                        />
+                                    )}
+                                </div>
+                                <img
+                                    src={`http://localhost/api/profPic/${liker.profilePic}`}
+                                    alt={`${liker.firstname} ${liker.lastname}`}
+                                    className="w-6 h-6 rounded-full mr-2"
+                                />
+                                <p
+                                    className="text-sm text-white cursor-pointer mt-1"
+                                    onClick={() => openUserLikeProfile(liker.userID, liker)}
+                                >
+                                    {liker.firstname} {liker.lastname}
+                                </p>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-sm text-white">No likers found.</p>
+                    )}
                 </Modal.Body>
                 <Modal.Footer style={{ backgroundColor: '#242526' }}>
                     <Button variant="secondary" onClick={() => setShowLikersModal(false)}>

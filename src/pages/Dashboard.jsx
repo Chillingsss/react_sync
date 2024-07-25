@@ -588,6 +588,13 @@ function Dashboard() {
         setIsCardOpen(false); // Optionally clear the search results
     };
 
+
+    const [searchQueryMessage, setSearchQueryMessage] = useState('');
+
+    const filteredMessages = messages.filter((message) =>
+        message.chat_message.toLowerCase().includes(searchQueryMessage.toLowerCase())
+    );
+
     // const handleSendMessage = async (e) => {
     //     e.preventDefault();
     //     if (!newMessage) {
@@ -844,7 +851,7 @@ function Dashboard() {
 
                             <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                            <div ref={modalRef} className="inline-block align-bottom bg-[#242526] rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-10 sm:align-middle sm:max-w-xl sm:w-11/12" style={{ height: '80vh' }}>
+                            <div ref={modalRef} className="inline-block align-bottom bg-[#242526] rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-10 sm:align-middle sm:max-w-xl sm:w-11/12" style={{ height: '90vh' }}>
                                 {/* Top section: Selected user profile */}
                                 <div className="bg-[#242526] px-4 py-4 ">
                                     <div className="flex items-center mb-2 justify-between">
@@ -869,9 +876,26 @@ function Dashboard() {
 
                                     <hr className="my-2 border-gray-200" />
 
+                                    {/* Search bar */}
+                                    <div className="relative mb-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Search messages..."
+                                            className="w-full p-2 rounded-lg bg-slate-900 text-white pl-10"
+                                            value={searchQueryMessage}
+                                            onChange={(e) => setSearchQueryMessage(e.target.value)}
+                                        />
+                                        <FontAwesomeIcon
+                                            icon={searchQueryMessage ? faTimes : faSearch}
+                                            className="absolute right-2 top-2.5 text-white cursor-pointer"
+                                            onClick={() => searchQueryMessage && setSearchQueryMessage('')}
+                                        />
+                                    </div>
+
+
                                     {/* Message area */}
                                     <div className="h-64 overflow-y-auto" style={{ height: '55vh' }} ref={messageContainerRef}>
-                                        {messages.length > 0 && messages.map((message, index) => (
+                                        {filteredMessages.length > 0 && filteredMessages.map((message, index) => (
                                             <div key={index} className="mb-2">
                                                 <div className={`bg-slate-900 text-white p-2 rounded-lg ${message.chat_userID === userId ? 'bg-blue-100' : ''}`}>
                                                     <div className="relative">
