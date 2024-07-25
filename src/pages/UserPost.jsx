@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { Container, Card, Modal, Button, Image, Row, Form } from 'react-bootstrap';
-import { faTrash, faEdit, faPaperPlane, faThumbsUp, faComment, faArrowUp, faCheck, faTimes, faBan, faLaugh, faLaughWink, faLaughSquint, faGrinSquintTears, faGrinTears } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faEdit, faPaperPlane, faThumbsUp, faComment, faArrowUp, faCheck, faTimes, faBan, faLaugh, faLaughWink, faLaughSquint, faGrinSquintTears, faGrinTears, faHeart, faSurprise, faSadTear, faAngry } from '@fortawesome/free-solid-svg-icons';
 import { faThumbsUp as farThumbsUp, faComment as farComment, faPaperPlane as farPaperPlane, faEdit as farEdit, faGrinTears as farGrinTears } from '@fortawesome/free-regular-svg-icons';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
@@ -109,8 +109,8 @@ const UserPost = ({ item, currentUse, comment }) => {
         isUserLike();
     }, [isUserLike]);
 
-    const reactionIcon = currentReaction === 'like' ? faThumbsUp : currentReaction === 'haha' ? faGrinTears : farGrinTears;
-    const reactionText = currentReaction === 'like' ? 'Like' : currentReaction === 'haha' ? 'Haha' : 'React';
+    const reactionIcon = currentReaction === 'like' ? faThumbsUp : currentReaction === 'haha' ? faGrinTears : currentReaction === 'heart' ? faHeart : currentReaction === 'wow' ? faSurprise : currentReaction === 'sad' ? faSadTear : currentReaction === 'angry' ? faAngry : farGrinTears;
+    const reactionText = currentReaction === 'like' ? 'Like' : currentReaction === 'haha' ? 'Haha' : currentReaction === 'heart' ? 'Heart' : currentReaction === 'wow' ? 'Wow' : currentReaction === 'sad' ? 'Sad' : currentReaction === 'angry' ? 'Angry' : 'React';
 
     // const [isUserLiked, setIsUserLiked] = useState(false);
 
@@ -770,7 +770,11 @@ const UserPost = ({ item, currentUse, comment }) => {
 
     const reactionIcons = {
         like: faThumbsUp,
-        haha: faGrinTears
+        haha: faGrinTears,
+        heart: faHeart,
+        wow: faSurprise,
+        sad: faSadTear,
+        angry: faAngry,
     };
 
 
@@ -954,12 +958,17 @@ const UserPost = ({ item, currentUse, comment }) => {
                                 className={`
                                     ${currentReaction === 'like' ? 'text-blue-500' : ''}
                                     ${currentReaction === 'haha' ? 'text-yellow-500' : ''}
+                                    ${currentReaction === 'heart' ? 'text-red-500' : ''}
+                                    ${currentReaction === 'wow' ? 'text-yellow-500' : ''}
+                                    ${currentReaction === 'sad' ? 'text-yellow-500' : ''}
+                                    ${currentReaction === 'angry' ? 'text-red-600' : ''}
+
                                     ${!currentReaction ? 'text-gray-300' : ''}
                                 `}
                                 icon={reactionIcon}
                                 style={{ width: '30px', height: '30px', cursor: 'pointer' }}
                             />
-                            <span style={{ lineHeight: '30px', marginLeft: '5px', color: currentReaction === 'like' ? 'blue' : currentReaction === 'haha' ? 'yellow' : 'inherit' }}>
+                            <span style={{ lineHeight: '30px', marginLeft: '5px', color: currentReaction === 'like' ? 'blue' : currentReaction === 'haha' ? 'yellow' : currentReaction === 'heart' ? 'red' : currentReaction === 'wow' ? 'yellow' : currentReaction === 'sad' ? 'yellow' : currentReaction === 'angry' ? 'red' : 'inherit' }}>
                                 {reactionText}
                             </span>
                             {showReactions && (
@@ -976,6 +985,26 @@ const UserPost = ({ item, currentUse, comment }) => {
                                         icon={faGrinTears}
                                         className={`w-6 h-6 cursor-pointer ${currentReaction === 'haha' ? 'text-yellow-500' : 'hover:text-yellow-500'}`}
                                         onClick={() => handleLikePost('haha')}
+                                    />
+                                    <FontAwesomeIcon
+                                        icon={faHeart}
+                                        className={`w-6 h-6 cursor-pointer ${currentReaction === 'heart' ? 'text-red-500' : 'hover:text-red-500'}`}
+                                        onClick={() => handleLikePost('heart')}
+                                    />
+                                    <FontAwesomeIcon
+                                        icon={faSurprise}
+                                        className={`w-6 h-6 cursor-pointer ${currentReaction === 'wow' ? 'text-yellow-500' : 'hover:text-yellow-500'}`}
+                                        onClick={() => handleLikePost('wow')}
+                                    />
+                                    <FontAwesomeIcon
+                                        icon={faSadTear}
+                                        className={`w-6 h-6 cursor-pointer ${currentReaction === 'sad' ? 'text-yellow-500' : 'hover:text-yellow-500'}`}
+                                        onClick={() => handleLikePost('sad')}
+                                    />
+                                    <FontAwesomeIcon
+                                        icon={faAngry}
+                                        className={`w-6 h-6 cursor-pointer ${currentReaction === 'angry' ? 'text-red-600' : 'hover:text-red-600'}`}
+                                        onClick={() => handleLikePost('angry')}
                                     />
                                     {/* Add more reactions as needed */}
                                 </div>
